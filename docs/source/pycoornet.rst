@@ -1,0 +1,20 @@
+API Documentation
+=================
+
+
+CrowdTangle class
+----------------------------
+
+.. autoclass:: pycoornet.CrowdTangle
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pycoornet
+   :members:
+   :undoc-members:
+   :show-inheritance:

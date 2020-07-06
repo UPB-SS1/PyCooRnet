@@ -2,7 +2,7 @@ from .context import pycoornet
 
 
 def test_app(capsys, example_fixture):
-    pycoornet.PyCooRnet.run()
+    pycoornet.App.run()
     captured = capsys.readouterr()
 
     assert "Hello World" in captured.out

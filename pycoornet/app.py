@@ -1,4 +1,4 @@
-class PyCooRnet:
+class App:
 
     @staticmethod
     def run():
