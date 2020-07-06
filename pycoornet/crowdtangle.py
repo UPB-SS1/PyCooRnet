@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-class PyCooRnet:
+class CrowdTangle:
     """Descripción de la clase.
 
         :param api_key: CrowdTangle API key.
@@ -15,7 +15,7 @@ class PyCooRnet:
         self.api_key = api_key
 
 
-    def get_crowtangle_shares(self, urls, url_column='url', date_column='date', platforms=('facebook','instagram'), nmax=500, sleep_time=20, clean_urls=False, save_ctapi_output=False):
+    def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook','instagram'), nmax=500, sleep_time=20, clean_urls=False, save_ctapi_output=False):
         """Get the URLs shares from CrowdTangle.
 
         :param urls: A pandas dataframe with at least a column "url" containing the URLs, and a column "date" with their published date.

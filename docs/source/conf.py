@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pycoornet'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'PyCooRnet'
-copyright = '2020, PyCooRnet Developers
+copyright = '2020, PyCooRnet Developers'
 author = 'PyCooRnet Developers'
 
 
