@@ -7,3 +7,5 @@ wheel==0.34.2
 pandas==1.0.5
 numpy==1.19.0
 recommonmark==0.6.0
+PyCrowdTangle==0.2.0
+tqdm==4.47.0
