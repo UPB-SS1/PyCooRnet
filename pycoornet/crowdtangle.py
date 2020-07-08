@@ -5,6 +5,8 @@ import PyCrowdTangle as pct
 from tqdm import tqdm
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
+import time
+from pathlib import Path
 
 class CrowdTangle:
     """Descripción de la clase.
@@ -63,27 +65,59 @@ class CrowdTangle:
                 # TO DO : Limpieza de urls por medio de regex
                 pass
 
-            cf_shares_df = None
+            #create empty dataframe
+            cf_shares_df = pd.DataFrame()
 
             # Progress bar tqdm
 
             for i in tqdm(range(len(urls))):
                 # set date limits, endDate: one week after date_published
-                StartDate = urls.iloc[i,:].loc[date_column]
-                endDate = str(parse(StartDate) + relativedelta(weeks=+1))
+                startDate = urls.iloc[i,:].loc['date']
+                endDate = str(parse(startDate) + relativedelta(weeks=+1))
 
-                ur = urls.iloc[i,:].loc[url_column]
-
-                data = pct.ct_get_links(link = ur, platforms = platforms,
+                url = urls.iloc[i,:].loc['url']
+                try:
+                    #pycrowdtangle get links
+                    data = pct.ct_get_links(link = url, platforms = platforms,
                                         start_date= startDate,
                                         end_date= endDate,
+                                        include_history='true',
+                                        count = nmax,
                                         api_token = token
                                         )
+                    #concat data results in dataframe
+                    cf_shares_df = cf_shares_df.append(data)
 
+                except:
+                    print(f"Unexpected http response code on url {url}")
 
-
-
+                #wait time
+                time.sleep(sleep_time)
 
 
         except Exception as e:
             raise e
+
+        if cf_shares_df.dropna().empty:
+            raise SystemExit("\n No ct_shares were found!")
+
+
+        if save_ctapi_output:
+            Path("./rawdata").mkdir(parents=True, exist_ok=True)
+            cf_shares_df.to_csv('./rawdata/cf_shares_df',index=False)
+
+        # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
+        ct_shares_df = ct_shares_df[ct_shares_df['url']!="https://facebook.com/null"]
+
+        # get rid of duplicates
+        ct_shares_df.drop_duplicates(inplace=True)
+
+        # remove shares performed more than one week from first share
+
+        # clean the expanded URLs
+
+        # write log
+
+        return ct_shares_df
+
+
