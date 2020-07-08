@@ -1,6 +1,10 @@
 import logging
 import numpy as np
 import pandas as pd
+import PyCrowdTangle as pct
+from tqdm import tqdm
+from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 
 class CrowdTangle:
     """Descripción de la clase.
@@ -60,6 +64,23 @@ class CrowdTangle:
                 pass
 
             cf_shares_df = None
+
+            # Progress bar tqdm
+
+            for i in tqdm(range(len(urls))):
+                # set date limits, endDate: one week after date_published
+                StartDate = urls.iloc[i,:].loc[date_column]
+                endDate = str(parse(StartDate) + relativedelta(weeks=+1))
+
+                ur = urls.iloc[i,:].loc[url_column]
+
+                data = pct.ct_get_links(link = ur, platforms = platforms,
+                                        start_date= startDate,
+                                        end_date= endDate,
+                                        api_token = token
+                                        )
+
+
 
 
 
