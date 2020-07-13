@@ -10,6 +10,14 @@ CrowdTangle class
    :undoc-members:
    :show-inheritance:
 
+Shared class
+----------------------------
+
+.. autoclass:: pycoornet.Shared
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

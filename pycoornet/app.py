@@ -1,5 +1,6 @@
 from .crowdtangle import CrowdTangle
 import pandas as pd
+from .shared import Shared
 
 class App:
 

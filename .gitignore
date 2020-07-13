@@ -138,3 +138,6 @@ dmypy.json
 
 # Local History for Visual Studio Code
 .history/
+
+# Mac Files
+.DS_Store
