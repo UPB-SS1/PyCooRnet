@@ -140,6 +140,6 @@ dmypy.json
 .history/
 
 # General
-#.DS_Store
-#.AppleDouble
-#.LSOverride
+.DS_Store
+.AppleDouble
+.LSOverride
