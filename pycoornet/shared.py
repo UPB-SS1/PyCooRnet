@@ -1,6 +1,7 @@
 import logging
 import networkx as nx
 import pandas as pd
+from .utils import Utils
 
 
 class Shared:
@@ -30,10 +31,42 @@ class Shared:
             keep_ourl_only (bool, optional): restrict the analysis to CrownTangle shares links matching the original URLs. Defaults to False.
 
         Returns:
-            [list]: [description]
+            2-element tuple containing
+
+            - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
+            - **time** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
-        coord_interval = []
-        return coord_interval
+        if 0<p<1:
+            logging.error('The p value must be between 0 and 1')
+            raise Exception('The p value must be between 0 and 1')
+
+        if 0<q<1:
+            logging.error('The q value must be between 0 and 1')
+            raise Exception('The q value must be between 0 and 1')
+
+
+        # keep original URLs only?
+        if keep_ourl_only:
+            crowtangle_shares = crowtangle_shares[crowtangle_shares['is_orig'] == True]
+            if crowtangle_shares.shape[0] < 2:
+                logging.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
+                raise Exception("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
+            else:
+                logging.info("Coordination interval estimated on shares matching original URLs")
+
+        # clean urls?
+        if clean_urls:
+            crowtangle_shares = Utils.clean_urls(crowtangle_shares, 'expanded')
+            logging.info('Coordination interval estimated on cleaned URLs')
+
+
+        crowtangle_shares = crowtangle_shares['id', 'date', 'expanded']
+
+
+
+
+
+        return None, None
 
     def coord_shares(self, dataframe, coordination_interval=None, parallel=False, percentile_edge_weight=0.90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
         """Given a dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
