@@ -1,7 +1,8 @@
 from .app import App
-import pandas as pd
-from .crowdtangle import CrowdTangle
-from .shared import Shared
+import logging
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     App.run()
+    App.get_ct_shares()
+    #App.get_shares()

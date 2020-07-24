@@ -18,6 +18,14 @@ Shared class
    :undoc-members:
    :show-inheritance:
 
+Utils class
+----------------------------
+
+.. autoclass:: pycoornet.Utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

@@ -60,7 +60,7 @@ class Shared:
             logging.info('Coordination interval estimated on cleaned URLs')
 
 
-        crowtangle_shares = crowtangle_shares['id', 'date', 'expanded']
+        crowtangle_shares = crowtangle_shares[['id', 'date', 'expanded']]
 
 
 
