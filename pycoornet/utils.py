@@ -19,6 +19,7 @@ class Utils:
         #Drop NaN values
         dataframe=dataframe.dropna()
         dataframe=dataframe.reset_index(drop=True)
+        print(dataframe.head())
         return dataframe
 
 

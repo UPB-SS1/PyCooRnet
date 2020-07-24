@@ -36,11 +36,11 @@ class Shared:
             - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
             - **time** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
-        if 0<p<1:
+        if 0<p<1 == False:
             logging.error('The p value must be between 0 and 1')
             raise Exception('The p value must be between 0 and 1')
 
-        if 0<q<1:
+        if 0<q<1 == False:
             logging.error('The q value must be between 0 and 1')
             raise Exception('The q value must be between 0 and 1')
 
