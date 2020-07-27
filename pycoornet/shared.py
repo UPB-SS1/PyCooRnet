@@ -11,7 +11,7 @@ class Shared:
     def __init__(self):
         pass
 
-    def __estimate_coord_interval(self, crowtangle_shares, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
+    def __estimate_coord_interval(self, crowtangle_shares_df, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
         """Estimates a threshold in seconds that defines a coordinated link share. While it is common that multiple
         (pages/groups/account) entities share the same link, some tend to perform these actions in an unusually short period of time.
         Unusual is thus defined here as a function of the median co-share time difference. More specifically, the function ranks all
@@ -19,7 +19,7 @@ class Shared:
         The value returned is the median time in seconds spent by these URLs to cumulate the p\% (default 0.1) of their total shares.
 
         Args:
-            crowtangle_shares (pandas.Dataframe): the dataframe of link posts
+            crowtangle_shares_df (pandas.Dataframe): the dataframe of link posts
 
             q (float, optional): controls the quantile of quickest URLs to be filtered. Defaults to 0.1.
 
@@ -47,8 +47,8 @@ class Shared:
 
         # keep original URLs only?
         if keep_ourl_only:
-            crowtangle_shares = crowtangle_shares[crowtangle_shares['is_orig'] == True]
-            if crowtangle_shares.shape[0] < 2:
+            crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df['is_orig'] == True]
+            if crowtangle_shares_df.shape[0] < 2:
                 logging.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
                 raise Exception("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
             else:
@@ -56,17 +56,69 @@ class Shared:
 
         # clean urls?
         if clean_urls:
-            crowtangle_shares = Utils.clean_urls(crowtangle_shares, 'expanded')
+            crowtangle_shares_df = Utils.clean_urls(crowtangle_shares_df, 'expanded')
             logging.info('Coordination interval estimated on cleaned URLs')
 
 
-        crowtangle_shares = crowtangle_shares[['id', 'date', 'expanded']]
+        crowtangle_shares_df = crowtangle_shares_df[['id', 'date', 'expanded']]
+
+        # count the number of diferent URLs
+        urls_df = pd.DataFrame(crowtangle_shares_df['expanded'].value_counts())
+        urls_df.reset_index(level=0, inplace=True)
+        urls_df.columns = ['URL', 'ct_shares']
+        # filter the URLS where the count is > 1
+        urls_df = urls_df[urls_df['ct_shares'] >1]
+
+        # filter the crowtangle_shares_df that join with urls_df
+        crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
+
+        #metrics creation
+        crowtangle_shares_df['date'] = crowtangle_shares_df['date'].astype('datetime64[ns]')
+        ranked_shares_df = crowtangle_shares_df[['expanded', 'date']]
+        shares_gb = crowtangle_shares_df.groupby('expanded')
+        ranked_shares_df['ct_shares_count']=shares_gb['id'].transform('nunique')
+        ranked_shares_df['first_share_date'] = shares_gb['date'].transform('min')
+        ranked_shares_df['rank'] = shares_gb['date'].rank(ascending=True, method='first')
+        ranked_shares_df['sec_from_first_share'] = (ranked_shares_df['date'] - ranked_shares_df['first_share_date']).dt.seconds
+        ranked_shares_df['perc_of_shares'] = ranked_shares_df['rank']/ranked_shares_df['ct_shares_count']
+
+        filtered_ranked_df = ranked_shares_df[ranked_shares_df['rank']==2].copy(deep=True)
+        filtered_ranked_df['sec_from_first_share'] = filtered_ranked_df.groupby('expanded')['sec_from_first_share'].transform('min')
+        filtered_ranked_df = filtered_ranked_df[['expanded', 'sec_from_first_share']]
+        filtered_ranked_df = filtered_ranked_df.drop_duplicates()
+
+        filtered_ranked_df = filtered_ranked_df[filtered_ranked_df['sec_from_first_share']<=filtered_ranked_df['sec_from_first_share'].quantile(q)]
 
 
+        # filter the ranked_shares_df that join with filtered_ranked_df
+        ranked_shares_df = ranked_shares_df[ranked_shares_df.set_index('expanded').index.isin(filtered_ranked_df.set_index('expanded').index)]
 
+        #filter the results by p value
+        ranked_shares_sub_df = ranked_shares_df[ranked_shares_df['perc_of_shares']>p].copy(deep=True)
+        ranked_shares_sub_df['sec_from_first_share'] = ranked_shares_sub_df.groupby('sec_from_first_share')['sec_from_first_share'].transform('min')
+        ranked_shares_sub_df = ranked_shares_sub_df[['expanded', 'sec_from_first_share']]
+        ranked_shares_sub_df = ranked_shares_sub_df.drop_duplicates()
 
+        summary_secs = ranked_shares_sub_df['sec_from_first_share'].describe()
+        coordination_interval= ranked_shares_sub_df['sec_from_first_share'].quantile(p)
 
-        return None, None
+        coord_interval = (None, None)
+
+        if coordination_interval == 0:
+            coordination_interval = 1
+            coord_interval = (summary_secs, coordination_interval)
+            logging.warning(f'q (quantile of quickest URLs to be filtered): {q}')
+            logging.warning(f'p (percentage of total shares to be reached): {p}')
+            logging.warning(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+            logging.warning('Warning: with the specified parameters p and q the median was 0 secs. The coordination interval has been automatically set to 1 secs')
+        else:
+            coord_interval = (summary_secs, coordination_interval)
+            logging.info(f'q (quantile of quickest URLs to be filtered): {q}')
+            logging.info(f'p (percentage of total shares to be reached): {p}')
+            logging.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+
+        print(type(coord_interval))
+        return coord_interval
 
     def coord_shares(self, dataframe, coordination_interval=None, parallel=False, percentile_edge_weight=0.90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
         """Given a dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
