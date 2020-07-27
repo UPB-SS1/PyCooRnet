@@ -85,6 +85,12 @@ class CrowdTangle:
                                             count=nmax,
                                             api_token=self.api_key
                                             )
+                    # if status is an error
+                    if data['status'] =! 200:
+                        print(f"Unexpected http response code {data['status']} on {url}")
+                        #next iteration
+                        continue
+
                     # convert json response to dataframe
                     df = pd.DataFrame(data['result']['posts'])
 
@@ -94,7 +100,6 @@ class CrowdTangle:
                     df['expanded'] = df['expandedLinks'].map(lambda x: x[0]).apply(pd.Series)['expanded']
 
                     # Remove column
-                    #df.pop('expandedLinks')
                     df.drop(['expandedLinks'], axis=1, inplace = True)
 
                     # Extract account info from column and convert to columns
@@ -108,8 +113,7 @@ class CrowdTangle:
                     df_full = pd.concat([df, partes], axis=1).drop(
                         ['account'], axis=1)
                     # concat data results in dataframe
-                    ct_shares_df = ct_shares_df.append(
-                        df_full, ignore_index=True)
+                    ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
                 except:
                     logging.exception(f"Unexpected http response code on url {url}")
                     print(f"Unexpected http response code on url {url}")
@@ -124,9 +128,9 @@ class CrowdTangle:
             Path("./rawdata").mkdir(parents=True, exist_ok=True)
             ct_shares_df.to_csv('./rawdata/ct_shares_df', index=False)
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
-        #ct_shares_df = ct_shares_df[ct_shares_df['url'] != "https://facebook.com/null"]
+        ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
         # get rid of duplicates
-        # ct_shares_df.drop_duplicates(inplace=True)
+        ct_shares_df.drop_duplicates(inplace=True)
         # remove shares performed more than one week from first share
         # clean the expanded URLs
         # write log
