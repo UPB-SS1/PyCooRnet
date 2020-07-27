@@ -86,7 +86,7 @@ class CrowdTangle:
                                             api_token=self.api_key
                                             )
                     # if status is an error
-                    if data['status'] =! 200:
+                    if data['status'] != 200:
                         print(f"Unexpected http response code {data['status']} on {url}")
                         #next iteration
                         continue
