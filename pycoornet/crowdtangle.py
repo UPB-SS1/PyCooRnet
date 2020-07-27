@@ -127,9 +127,12 @@ class CrowdTangle:
         if ct_shares_df.dropna().empty:
             logging.error("No ct_shares were found!")
             raise SystemExit("\n No ct_shares were found!")
+        #if save_ctapi_output is true
         if save_ctapi_output:
+            #create dir to save raw data
             Path("./rawdata").mkdir(parents=True, exist_ok=True)
-            ct_shares_df.to_csv('./rawdata/ct_shares_df', index=False)
+            # save raw dataframe
+            ct_shares_df.to_csv('./rawdata/ct_shares_df.csv', index=False)
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
         # get rid of duplicates
