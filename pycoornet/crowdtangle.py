@@ -87,6 +87,16 @@ class CrowdTangle:
                                             )
                     # convert json response to dataframe
                     df = pd.DataFrame(data['result']['posts'])
+
+                    #get pagination pending
+
+                    # Extract expanded info from column and convert to columns
+                    df['expanded'] = df['expandedLinks'].map(lambda x: x[0]).apply(pd.Series)['expanded']
+
+                    # Remove column
+                    #df.pop('expandedLinks')
+                    df.drop(['expandedLinks'], axis=1, inplace = True)
+
                     # Extract account info from column and convert to columns
 
                     # add prefix name to each key of the dictionary per row in 'account' column
