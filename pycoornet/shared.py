@@ -117,7 +117,6 @@ class Shared:
             logging.info(f'p (percentage of total shares to be reached): {p}')
             logging.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
 
-        print(type(coord_interval))
         return coord_interval
 
     def coord_shares(self, dataframe, coordination_interval=None, parallel=False, percentile_edge_weight=0.90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
@@ -158,5 +157,54 @@ class Shared:
         # estimate the coordination interval if not specified by the users
         if coordination_interval == None:
             coordination_interval = self.__estimate_coord_interval(dataframe, clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
+            coordination_interval = coordination_interval[1]
+
+        if coordination_interval == 0:
+            raise Exception("The coordination_interval value can't be 0. Please choose a value greater than zero or use coordination_interval=None to automatically calculate the interval")
+
+        if keep_ourl_only == True:
+            dataframe = dataframe[dataframe['is_orig'] == True]
+            if dataframe < 2:
+                raise Exception ("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
+
+        if clean_urls:
+            dataframe =  Utils.clean_urls(dataframe, 'expanded')
+
+        urls_df = pd.DataFrame(dataframe['expanded'].value_counts())
+        urls_df.reset_index(level=0, inplace=True)
+        urls_df.columns = ['URL', 'ct_shares']
+        urls_df = urls_df[urls_df['ct_shares'] >1]
+
+        crowtangle_shares_df = dataframe[dataframe.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
+
+        if parallel:
+            pass
+        else:
+            data_list = []
+            for index, row in urls_df.iterrows():
+                summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
+                len = summary_df.groupby('account.url')['account.url'].nunique()
+                if summary_df.groupby('account.url')['account.url'].nunique().shape[0]>1:
+                    summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
+                    #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
+                    date_serie = summary_df['date'].astype('int64') // 10 ** 9
+                    max = date_serie.max()
+                    min = date_serie.min()
+                    div = (max-min)/coordination_interval + 1
+                    summary_df['cut']  = pd.cut(summary_df['date'].astype('int64') // 10 ** 9, int(div))
+                    summary_gb = summary_df.groupby('cut')
+                    summary_df['count'] = summary_gb['cut'].transform('nunique')
+                    #Revisar si los otros pasos del mutate son necesarios, ya que no lo veo asi
+                    #mutate(count = n(), account.url = list(account.url), share_date = list(date), url = url)
+                    summary_df = summary_df[['cut', 'count', 'account.url', 'date']]
+                    summary_df.rename(columns = {'date': 'share_date'}, inplace = True)
+                    summary_df = summary_df[summary_df['count']>1]
+                    summary_df = summary_df.drop_duplicates()
+                    data_list.append(summary_df)
+
+            data_df = pd.concat(data_list)
+            if data_df.shape[0] == 0:
+                logging.info('there are not enough shares!')
+                return None
 
         return None
