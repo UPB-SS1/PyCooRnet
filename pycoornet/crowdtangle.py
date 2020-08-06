@@ -57,6 +57,22 @@ class CrowdTangle:
             if date_column not in urls.columns:
                 message = f"Can't find {date_column} in urls dataframe"
                 raise Exception(message)
+
+            # initialize logfile
+            #Create and configure logger
+            logging.basicConfig(filename="logfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+            #Creating an object
+            logger=logging.getLogger()
+
+            #Setting the threshold of logger to DEBUG
+            logger.setLevel(logging.DEBUG)
+
+            logger.info("########## PyCoornet ##########")
+            logger.info(f"get_shares script execute")
+
+
             # remove duplicated rows
             urls = urls.drop_duplicates(subset=url_column, keep=False)
             # set column names
@@ -66,6 +82,7 @@ class CrowdTangle:
             # clean the URLs
             if clean_urls:
                 urls = Utils.clean_urls(urls, 'url')
+                logger.debug("Original URLs have been cleaned")
 
             # create empty dataframe
             ct_shares_df = pd.DataFrame()
@@ -90,7 +107,8 @@ class CrowdTangle:
                                             )
                     # if status is an error
                     if data['status'] != 200:
-                        print(f"Unexpected http response code {data['status']} on {url}")
+                        logging.exception(f"Unexpected http response code on url {url}")
+                        print(f"Unexpected http response code on url {url}")
                         #next iteration
                         continue
 
@@ -118,11 +136,12 @@ class CrowdTangle:
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
                 except:
-                    logging.exception(f"Unexpected http response code on url {url}")
-                    print(f"Unexpected http response code on url {url}")
+                    logging.exception(f"error on {url}")
+                    print(f"error on {url}")
                 # wait time
                 time.sleep(sleep_time)
         except Exception as e:
+            logging.exception(f"Exception {e.__class__} occurred.")
             raise e
         if ct_shares_df.dropna().empty:
             logging.error("No ct_shares were found!")
