@@ -143,9 +143,9 @@ class CrowdTangle:
         except Exception as e:
             logging.exception(f"Exception {e.__class__} occurred.")
             raise e
-        if ct_shares_df.dropna().empty:
-            logging.error("No ct_shares were found!")
-            raise SystemExit("\n No ct_shares were found!")
+        #if ct_shares_df.dropna().empty:
+        #    logging.error("No ct_shares were found!")
+        #    raise SystemExit("\n No ct_shares were found!")
         #if save_ctapi_output is true
         if save_ctapi_output:
             #create dir to save raw data
@@ -154,9 +154,14 @@ class CrowdTangle:
             ct_shares_df.to_csv('./rawdata/ct_shares_df.csv', index=False)
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
+
         # get rid of duplicates
-        ct_shares_df.drop_duplicates(inplace=True)
+        ct_shares_df.drop_duplicates(subset= ["id", "platformId", "postUrl", "expanded"],
+                                    inplace=True, ignore_index = True)
         # remove shares performed more than one week from first share
+
         # clean the expanded URLs
+
         # write log
+
         return ct_shares_df
