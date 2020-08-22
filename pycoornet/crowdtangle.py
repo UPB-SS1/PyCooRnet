@@ -61,8 +61,7 @@ class CrowdTangle:
             # initialize logfile
             #Create and configure logger
             logging.basicConfig(filename="logfile.log",
-                    format='%(asctime)s %(message)s',
-                    filemode='w')
+                                filemode='w')
             #Creating an object
             logger=logging.getLogger()
 
@@ -78,7 +77,9 @@ class CrowdTangle:
             # set column names
             urls = urls.rename(
                 columns={url_column: 'url', date_column: 'date'})
-            print(urls.columns)
+
+            #convert the type of date column to datetime
+            urls['date'] = pd.to_datetime(urls['date'])
             # clean the URLs
             if clean_urls:
                 urls = Utils.clean_urls(urls, 'url')
@@ -90,10 +91,9 @@ class CrowdTangle:
             # Progress bar tqdm
             for i in tqdm(range(len(urls))):
                 # set date limits, endDate: one week after date_published
-                startDate = parse(urls.iloc[i, :].loc['date'])
-                startDate = startDate.replace(microsecond=0)
-                endDate = str(startDate + relativedelta(weeks=+1))
-                startDate = str(startDate)
+                startDate = urls.iloc[i, :].loc['date']
+                #startDate = startDate.replace(microsecond=0)
+                endDate = startDate + pd.Timedelta('7 day')
                 url = urls.iloc[i, :].loc['url']
                 try:
                     # pycrowdtangle get links
@@ -110,6 +110,13 @@ class CrowdTangle:
                         logging.exception(f"Unexpected http response code on url {url}")
                         print(f"Unexpected http response code on url {url}")
                         #next iteration
+                        continue
+
+                    #if data response is empty
+                    if not data['result']['posts']:
+                        print(f"Empty response on url: {url}")
+                        logger.debug(f"Empty response on url: {url}")
+                        time.sleep(30)
                         continue
 
                     # convert json response to dataframe
@@ -129,10 +136,23 @@ class CrowdTangle:
                     df['account'] = df['account'].apply(
                         lambda x: {f'account_{k}': v for k, v in x.items()})
                     # convert dictionary info in each row to columns
-                    partes = df['account'].apply(pd.Series)
+                    account = df['account'].apply(pd.Series)
 
-                    df_full = pd.concat([df, partes], axis=1).drop(
-                        ['account'], axis=1)
+                    df.drop(['account'], axis=1, inplace = True)
+
+                    # Expand statistics column
+                    statistics = df['statistics'].apply(lambda x : dict(eval(x))).apply(pd.Series)
+                    actual = statistics['actual'].apply(lambda x: {f'statistics_actual_{k}': v for k, v in x.items()})
+                    actual = actual.apply(pd.Series)
+                    expected = statistics['expected'].apply(lambda x: {f'statistics_expected_{k}': v for k, v in x.items()})
+                    expected = expected.apply(pd.Series)
+
+                    #remove column
+                    df.drop(['statistics'], axis=1, inplace = True)
+
+                    #concat expanded account and statistics columns
+                    df_full = pd.concat([df, account, actual, expected], axis=1)
+
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
                 except:
@@ -146,12 +166,14 @@ class CrowdTangle:
         #if ct_shares_df.dropna().empty:
         #    logging.error("No ct_shares were found!")
         #    raise SystemExit("\n No ct_shares were found!")
+
         #if save_ctapi_output is true
         if save_ctapi_output:
             #create dir to save raw data
             Path("./rawdata").mkdir(parents=True, exist_ok=True)
             # save raw dataframe
             ct_shares_df.to_csv('./rawdata/ct_shares_df.csv', index=False)
+
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
 
@@ -159,6 +181,7 @@ class CrowdTangle:
         ct_shares_df.drop_duplicates(subset= ["id", "platformId", "postUrl", "expanded"],
                                     inplace=True, ignore_index = True)
         # remove shares performed more than one week from first share
+
 
         # clean the expanded URLs
 
