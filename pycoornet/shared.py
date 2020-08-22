@@ -183,7 +183,6 @@ class Shared:
             data_list = []
             for index, row in urls_df.iterrows():
                 summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
-                len = summary_df.groupby('account.url')['account.url'].nunique()
                 if summary_df.groupby('account.url')['account.url'].nunique().shape[0]>1:
                     summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
                     #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
@@ -206,5 +205,7 @@ class Shared:
             if data_df.shape[0] == 0:
                 logging.info('there are not enough shares!')
                 return None
+
+            coordinated_shares_df = data_df.explode('account.url').explode('share_date')
 
         return None
