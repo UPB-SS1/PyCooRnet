@@ -153,6 +153,9 @@ class CrowdTangle:
                     #concat expanded account and statistics columns
                     df_full = pd.concat([df, account, actual, expected], axis=1)
 
+                    # remove shares performed more than one week from first share
+                    df_full = df_full[startDate:endDate]
+
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
                 except:
@@ -180,8 +183,6 @@ class CrowdTangle:
         # get rid of duplicates
         ct_shares_df.drop_duplicates(subset= ["id", "platformId", "postUrl", "expanded"],
                                     inplace=True, ignore_index = True)
-        # remove shares performed more than one week from first share
-
 
         # clean the expanded URLs
 
