@@ -20,6 +20,6 @@ class App:
     def get_shares():
         df_ct = pd.read_json('samples/ct_shares.json')
         shared = Shared()
-        shared.coord_shares(df_ct, clean_urls=True)
+        shared.coord_shares(df_ct, clean_urls=False)
 
 
