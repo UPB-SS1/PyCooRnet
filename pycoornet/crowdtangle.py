@@ -62,15 +62,12 @@ class CrowdTangle:
             logger=logging.getLogger()
             logger.setLevel(logging.INFO)
 
-            #logging.basicConfig(filename="logfile.log",filemode='w')
             fh = logging.FileHandler("logfile.log")
 
             #Setting the threshold of logger to INFO
             fh.setLevel(logging.INFO)
             logger.addHandler(fh)
 
-
-            #logger.setLevel(logging.INFO)
 
             logger.info("########## PyCoornet ##########")
             logger.info(f"get_shares script execute \n\n")

@@ -7,10 +7,10 @@ import pandas as pd
 from pycoornet.crowdtangle import CrowdTangle
 
 # linux create enviroment variable
-# Example:    export CROWD_TOKEN=ASIU29834792387UYGI
+# Example:    export CROWDTOKEN=ASIU29834792387UYGI
 
 # load enviroment variable
-token = os.getenv('CROWD_TOKEN')
+token = os.getenv('CROWDTOKEN')
 
 #create variable class with crowdtangle api key
 get_ct_shares = CrowdTangle(token)
