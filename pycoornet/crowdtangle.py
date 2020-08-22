@@ -193,6 +193,11 @@ class CrowdTangle:
                                     inplace=True, ignore_index = True)
 
         # clean the expanded URLs
+        if clean_urls:
+                ct_shares_df = Utils.clean_urls(ct_shares_df, "expanded")
+                logger.info("expanded URLs have been cleaned")
+
+        ct_shares_df['is_orig'] = ct_shares_df["expanded"].apply(lambda x: bool(urls['url'].str.contains(x).sum()))
 
         # write log
         logger.info(f"Original URLs: {len(urls)}")

@@ -19,7 +19,7 @@ get_ct_shares = CrowdTangle(token)
 test_file = pd.read_csv('samples/sample.csv')
 
 shares = get_ct_shares.get_shares(urls = test_file, url_column='clean_url', date_column='date',
-                                platforms='facebook', sleep_time=1)
+                                  clean_urls=True, platforms='facebook', sleep_time=1)
 print(shares)
 
 
