@@ -22,6 +22,8 @@ shares = get_ct_shares.get_shares(urls = test_file, url_column='clean_url', date
                                   clean_urls=True, platforms='facebook', sleep_time=1)
 print(shares)
 
+shares.to_csv('samples/sample_ct_out.csv',index=False)
+
 
 
 
