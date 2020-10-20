@@ -79,8 +79,9 @@ class Shared:
         ranked_shares_df['ct_shares_count']=shares_gb['id'].transform('nunique')
         ranked_shares_df['first_share_date'] = shares_gb['date'].transform('min')
         ranked_shares_df['rank'] = shares_gb['date'].rank(ascending=True, method='first')
-        ranked_shares_df['sec_from_first_share'] = (ranked_shares_df['date'] - ranked_shares_df['first_share_date']).dt.seconds
+        ranked_shares_df['sec_from_first_share'] = (ranked_shares_df['date'] - ranked_shares_df['first_share_date']).dt.total_seconds()
         ranked_shares_df['perc_of_shares'] = ranked_shares_df['rank']/ranked_shares_df['ct_shares_count']
+        ranked_shares_df = ranked_shares_df.sort_values(by = 'expanded')
 
         filtered_ranked_df = ranked_shares_df[ranked_shares_df['rank']==2].copy(deep=True)
         filtered_ranked_df['sec_from_first_share'] = filtered_ranked_df.groupby('expanded')['sec_from_first_share'].transform('min')
@@ -92,10 +93,9 @@ class Shared:
 
         # filter the ranked_shares_df that join with filtered_ranked_df
         ranked_shares_df = ranked_shares_df[ranked_shares_df.set_index('expanded').index.isin(filtered_ranked_df.set_index('expanded').index)]
-
         #filter the results by p value
         ranked_shares_sub_df = ranked_shares_df[ranked_shares_df['perc_of_shares']>p].copy(deep=True)
-        ranked_shares_sub_df['sec_from_first_share'] = ranked_shares_sub_df.groupby('sec_from_first_share')['sec_from_first_share'].transform('min')
+        ranked_shares_sub_df['sec_from_first_share'] = ranked_shares_sub_df.groupby('expanded')['sec_from_first_share'].transform('min')
         ranked_shares_sub_df = ranked_shares_sub_df[['expanded', 'sec_from_first_share']]
         ranked_shares_sub_df = ranked_shares_sub_df.drop_duplicates()
 
@@ -174,6 +174,7 @@ class Shared:
         urls_df.reset_index(level=0, inplace=True)
         urls_df.columns = ['URL', 'ct_shares']
         urls_df = urls_df[urls_df['ct_shares'] >1]
+        urls_df = urls_df.sort_values('URL')
 
         crowtangle_shares_df = dataframe[dataframe.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
 
@@ -191,12 +192,14 @@ class Shared:
                     min = date_serie.min()
                     div = (max-min)/coordination_interval + 1
                     summary_df['cut']  = pd.cut(summary_df['date'].astype('int64') // 10 ** 9, int(div))
-                    summary_gb = summary_df.groupby('cut')
-                    summary_df['count'] = summary_gb['cut'].transform('nunique')
-                    #Revisar si los otros pasos del mutate son necesarios, ya que no lo veo asi
-                    #mutate(count = n(), account.url = list(account.url), share_date = list(date), url = url)
-                    summary_df = summary_df[['cut', 'count', 'account.url', 'date']]
-                    summary_df.rename(columns = {'date': 'share_date'}, inplace = True)
+                    summary_gb = summary_df[['cut']].groupby('cut')
+                    count_df = summary_gb.agg({'cut':'count'}).rename(columns={'cut':'count'}).reset_index()
+                    summary_df = pd.merge(summary_df,count_df, on='cut', how='left')
+                    summary_df['url'] = row['URL']
+                    summary_df['account_url'] = [summary_df['account.url'].values] * summary_df.shape[0]
+                    summary_df['share_date'] = [summary_df['date'].values] * summary_df.shape[0]
+                    summary_df = summary_df[['cut', 'count', 'account_url', 'share_date', 'url']]
+                    # summary_df = summary_df.rename(columns = {'date': 'share_date'})
                     summary_df = summary_df[summary_df['count']>1]
                     summary_df = summary_df.drop_duplicates()
                     data_list.append(summary_df)
