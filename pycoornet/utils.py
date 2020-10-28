@@ -14,10 +14,47 @@ class Utils:
         Returns:
             pandas.DataFrame: the dateframe with the cleaned urls
         """
+        pattern = [
+            '\\?utm_.*',
+            'feed_id.*',
+            '&_unique_id.*',
+            '\\?#.*',
+            '\\?ref.*',
+            '\\?fbclid.*',
+            '\\?rss.*',
+            '\\?ico.*',
+            '\\?recruiter.*',
+            '\\?sr_share_.*',
+            '\\?fb_rel.*',
+            '\\?social.*',
+            '\\?intcmp_.*',
+            '\\?xrs.*',
+            '\\?CMP.*',
+            '\\?tid.*',
+            '\\?ncid.*',
+            '&utm_.*',
+            '\\?rbs&utm_hp_ref.*',
+            '/#\\..*',
+            '\\?mobile.*',
+            '&fbclid.*',
+            '/$']
+
+        dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)
+        dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)
+        dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)
+
+        dataframe[url_column] = dataframe[url_column].str.replace('.*(http)', '\\1', regex=True)
+        dataframe[url_column] = dataframe[url_column].str.replace('\\/$', '', regex=True)
+        dataframe[url_column] = dataframe[url_column].str.replace('\\&$'.join(pattern), '', regex=True)
+
+         #Remove the URL query parameters and set NaN to protocols that aren't http or https
+        dataframe = dataframe.loc[dataframe[url_column].str.contains('^http://127.0.0.1|^https://127.0.0.1|http://localhost|https://localhost') == False]
+        dataframe = dataframe.loc[dataframe[url_column].str.contains('http://|https://')]
+
         #Remove the URL query parameters and set NaN to protocols that aren't http or https
-        dataframe[url_column] = dataframe[url_column].apply(lambda x: urljoin(x, urlparse(x).path) if (urlparse(x).scheme == 'http' or urlparse(x).scheme == 'https') and urlparse(x).netloc != '127.0.0.1' and urlparse(x).netloc != 'localhost' else np.NaN)
+        #dataframe[url_column] = dataframe[url_column].apply(lambda x: urljoin(x, urlparse(x).path) if (urlparse(x).scheme == 'http' or urlparse(x).scheme == 'https') and urlparse(x).netloc != '127.0.0.1' and urlparse(x).netloc != 'localhost' else np.NaN)
         #Drop NaN values
-        dataframe=dataframe.dropna()
+        #dataframe=dataframe.dropna()
         dataframe=dataframe.reset_index(drop=True)
         return dataframe
 
