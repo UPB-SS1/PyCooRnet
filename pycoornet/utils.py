@@ -37,7 +37,20 @@ class Utils:
             '/#\\..*',
             '\\?mobile.*',
             '&fbclid.*',
-            '/$']
+            '/$',
+            '#.*',
+            '\\?mbid.*',
+            '\\?platform',
+            '\\?__twitter_impression',
+            '\\/amp$',
+            '\\/amp=.*',
+            '\\?verso.*',
+            '\\?mc_cid.*',
+            '\\?mc_eid.*',
+            '\\?source=TDB.*',
+            '\\?spMailingID.*'
+            '\\?mcd.*'
+            ]
 
         dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)
         dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)

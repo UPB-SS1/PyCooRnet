@@ -1,5 +1,6 @@
 from .crowdtangle import CrowdTangle
 import logging
+import networkx as nx
 import pandas as pd
 from .shared import Shared
 
@@ -19,9 +20,11 @@ class App:
 
     @staticmethod
     def get_shares():
-        df_ct = pd.read_json('/Users/camilo/coornet/ct_shares_teenvoge.json')
+        df_ct = pd.read_json('/Users/camilo/coornet/ct_shares_full.json')
         print(df_ct.count())
         shared = Shared()
-        shared.coord_shares(df_ct, clean_urls=False)
+        shares_graph, q = shared.coord_shares(df_ct, clean_urls=True)
+        nx.write_gexf(shares_graph, "../build/shares.gexf")
+
 
 
