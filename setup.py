@@ -14,13 +14,14 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pycoornet",
-    version="0.1",
+    version="0.1.0",
     description="Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="PyCooRnet developer group",
+    author = 'Camilo Andrés Soto Montoya',
+    author_email = 'camilo.soto@outlook.com',
     url="https://github.com/UPB-SS1/PyCooRnet",
-    packages=find_packages(where='src' ,exclude=["tests", "*.test", "*.tes.*"]),
+    packages=find_packages(where='src/pycoornet' ,exclude=["tests", "*.test", "*.tes.*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -30,4 +31,11 @@ setup(
     keywords="pyCooRnet",
     license="MIT",
     test_suite="tests",
+    install_requires=[
+          'pandas>=1.0.5',
+          'PyCrowdTangle>=0.4.0',
+          'tqdm>=4.47.0',
+          'networkx>=2.4',
+          'python-louvain>=0.14'
+      ],
 )
