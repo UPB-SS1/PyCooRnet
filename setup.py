@@ -1,4 +1,12 @@
+import sys
+from pkg_resources import VersionConflict, require
 from setuptools import setup, find_packages
+
+try:
+    require('setuptools>=38.3')
+except VersionConflict:
+    print("Error: version of setuptools is too old (<38.3)!")
+    sys.exit(1)
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -12,7 +20,7 @@ setup(
     long_description_content_type="text/markdown",
     author="PyCooRnet developer group",
     url="https://github.com/UPB-SS1/PyCooRnet",
-    packages=find_packages(exclude=["test", "*.test", "*.tes.*"]),
+    packages=find_packages(where='src' ,exclude=["tests", "*.test", "*.tes.*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -21,5 +29,5 @@ setup(
     python_requires='>=3.6',
     keywords="pyCooRnet",
     license="MIT",
-    test_suite="test",
+    test_suite="tests",
 )
