@@ -1,5 +1,5 @@
 # PyCooRnet
-Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour. 
+Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour.
 
 based on https://github.com/fabiogiglietto/CooRnet
 
@@ -24,3 +24,12 @@ VSCODE
 
 ## StyleGuide
 http://google.github.io/styleguide/pyguide.html
+
+
+## running tests
+```sh
+py.test --crowdtoken=<your crowdtangle api token> --urlsfilepath=<path of the urls file> --crowdresultfile=<path of the crowdtangle file>
+```
+For Example
+```sh
+py.test --crowdtoken=akZbRIg2DNKhFogkN6rFurv --urlsfile=samples/sample.csv --crowdresultfile=samples/ct_shares_full.json
