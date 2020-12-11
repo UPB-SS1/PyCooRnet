@@ -143,3 +143,6 @@ dmypy.json
 .DS_Store
 .AppleDouble
 .LSOverride
+
+#outputs
+output/
