@@ -1,5 +1,5 @@
 ---
-title: 'Detecting Coordinated Link Sharing Behavior .....'
+title: 'Detección de Comportamiento Coordinado De Intercambio de Enlaces (Coordinated Link Sharing)'
 tags:
   - Social Networks
   - Graphs
