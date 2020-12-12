@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from .utils import Utils
 
+logger = logging.getLogger(__name__)
 
 class Shared:
     """Shared class docsgring
@@ -40,11 +41,11 @@ class Shared:
             - **time** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
         if 0<p<1 == False:
-            logging.error('The p value must be between 0 and 1')
+            logger.error('The p value must be between 0 and 1')
             raise Exception('The p value must be between 0 and 1')
 
         if 0<q<1 == False:
-            logging.error('The q value must be between 0 and 1')
+            logger.error('The q value must be between 0 and 1')
             raise Exception('The q value must be between 0 and 1')
 
 
@@ -52,15 +53,15 @@ class Shared:
         if keep_ourl_only:
             crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df['is_orig'] == True]
             if crowtangle_shares_df.shape[0] < 2:
-                logging.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
+                logger.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
                 raise Exception("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
             else:
-                logging.info("Coordination interval estimated on shares matching original URLs")
+                logger.info("Coordination interval estimated on shares matching original URLs")
 
         # clean urls?
         if clean_urls:
             crowtangle_shares_df = Utils.clean_urls(crowtangle_shares_df, 'expanded')
-            logging.info('Coordination interval estimated on cleaned URLs')
+            logger.info('Coordination interval estimated on cleaned URLs')
 
 
         crowtangle_shares_df = crowtangle_shares_df[['id', 'date', 'expanded']]
@@ -110,20 +111,20 @@ class Shared:
         if coordination_interval == 0:
             coordination_interval = 1
             coord_interval = (summary_secs, coordination_interval)
-            logging.warning(f'q (quantile of quickest URLs to be filtered): {q}')
-            logging.warning(f'p (percentage of total shares to be reached): {p}')
-            logging.warning(f'coordination interval from estimate_coord_interval: {coordination_interval}')
-            logging.warning('Warning: with the specified parameters p and q the median was 0 secs. The coordination interval has been automatically set to 1 secs')
+            logger.warning(f'q (quantile of quickest URLs to be filtered): {q}')
+            logger.warning(f'p (percentage of total shares to be reached): {p}')
+            logger.warning(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+            logger.warning('Warning: with the specified parameters p and q the median was 0 secs. The coordination interval has been automatically set to 1 secs')
         else:
             coord_interval = (summary_secs, coordination_interval)
-            logging.info(f'q (quantile of quickest URLs to be filtered): {q}')
-            logging.info(f'p (percentage of total shares to be reached): {p}')
-            logging.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+            logger.info(f'q (quantile of quickest URLs to be filtered): {q}')
+            logger.info(f'p (percentage of total shares to be reached): {p}')
+            logger.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
 
         return coord_interval
 
     def __buid_graph(self, crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight = 90, timestamps = False):
-        logging.info("Bulding graph")
+        logger.info("Bulding graph")
         coord_df = coordinated_shares_df[['account_url', 'url', 'share_date']].reset_index(drop=True)
         coord_graph = nx.from_pandas_edgelist(coord_df, 'account_url', 'url', create_using=nx.DiGraph())
 
@@ -211,7 +212,7 @@ class Shared:
         highly_connected_graph.remove_nodes_from(list(nx.isolates(highly_connected_graph)))
 
         if timestamps:
-            logging.info("Calculating nodes timestamps")
+            logger.info("Calculating nodes timestamps")
             vec_func = np.vectorize(lambda u,v: bipartite_graph.get_edge_data(u,v)['share_date'])
             attributes = []
             for (u,v) in highly_connected_graph.edges():
@@ -220,7 +221,7 @@ class Shared:
 
             it = iter(attributes)
             nx.set_edge_attributes(highly_connected_graph, dict(zip(it, it)))
-            logging.info("timestamps calculated")
+            logger.info("timestamps calculated")
 
         #find and annotate nodes-components
         connected_components=list(nx.connected_components(highly_connected_graph))
@@ -240,7 +241,7 @@ class Shared:
 
         #update graph attribues
         nx.set_node_attributes(highly_connected_graph, attributes_df.set_index('node').to_dict('index'))
-        logging.info("graph builded")
+        logger.info("graph builded")
 
         return highly_connected_graph, q
 
@@ -311,7 +312,7 @@ class Shared:
             i=0
             for index, row in urls_df.iterrows():
                 i=i+1
-                logging.info(f"processing {i} of {urls_count}, url={row['URL']}")
+                logger.info(f"processing {i} of {urls_count}, url={row['URL']}")
                 summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
                 if summary_df.groupby('account.url')['account.url'].nunique().shape[0]>1:
                     summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
@@ -339,7 +340,7 @@ class Shared:
 
             data_df = pd.concat(data_list)
             if data_df.shape[0] == 0:
-                logging.info('there are not enough shares!')
+                logger.info('there are not enough shares!')
                 return None
 
             coordinated_shares_df = data_df.reset_index(drop=True).apply(pd.Series.explode).reset_index(drop=True)
@@ -354,6 +355,8 @@ class Shared:
 
             highly_connected_graph, q =  self.__buid_graph(crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-
-
         return highly_connected_graph, q
+
+    def componentes_summary(self, highly_connected_graph):
+        #pd.DataFrame.from_dict(dict(highly_connected_graph.nodes(data=True)), orient='index')
+        pass
