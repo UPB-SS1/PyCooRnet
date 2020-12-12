@@ -145,34 +145,34 @@ class Shared:
         full_graph = bipartite.weighted_projected_graph(bipartite_graph, account_urls)
 
         #pandas helper dataframe to calcule graph node attribues
-        crowtangle_shares_df['account.name'] = crowtangle_shares_df['account.name'].astype(str)
-        crowtangle_shares_df['account.handle'] = crowtangle_shares_df['account.handle'].astype(str)
-        crowtangle_shares_df['account.pageAdminTopCountry'] = crowtangle_shares_df['account.pageAdminTopCountry'].astype(str)
-        crowtangle_shares_gb = crowtangle_shares_df.groupby('account.url')
-        crowtangle_shares_df['name_changed']=(crowtangle_shares_gb['account.name'].transform("nunique"))>1
-        crowtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account.handle'].transform("nunique"))>1
-        crowtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account.pageAdminTopCountry'].transform("nunique"))>1
-        crowtangle_shares_df['account.name'] = crowtangle_shares_gb['account.name'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account.handle'] = crowtangle_shares_gb['account.handle'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account.pageAdminTopCountry'] = crowtangle_shares_gb['account.pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df[['account.name','account.handle','account.pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
+        crowtangle_shares_df['account_name'] = crowtangle_shares_df['account_name'].astype(str)
+        crowtangle_shares_df['account_handle'] = crowtangle_shares_df['account_handle'].astype(str)
+        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_df['account_pageAdminTopCountry'].astype(str)
+        crowtangle_shares_gb = crowtangle_shares_df.groupby('account_url')
+        crowtangle_shares_df['name_changed']=(crowtangle_shares_gb['account_name'].transform("nunique"))>1
+        crowtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account_handle'].transform("nunique"))>1
+        crowtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account_pageAdminTopCountry'].transform("nunique"))>1
+        crowtangle_shares_df['account_name'] = crowtangle_shares_gb['account_name'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df['account_handle'] = crowtangle_shares_gb['account_handle'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_gb['account_pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df[['account_name','account_handle','account_pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
 
-        crowtangle_shares_gb = crowtangle_shares_df.reset_index().groupby(['account.url'])
+        crowtangle_shares_gb = crowtangle_shares_df.reset_index().groupby(['account_url'])
 
         account_info_df = crowtangle_shares_gb['index'].agg([('shares','count')])
         account_info_df = account_info_df.merge(pd.DataFrame(crowtangle_shares_gb['is_coordinated'].apply(lambda x: (x==True).sum())).rename(columns={'is_coordinated':'coord_shares'}), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.subscriberCount'].agg([('avg_account_subscriber_count','mean')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.name'].agg([('account_name','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_subscriberCount'].agg([('avg_account_subscriber_count','mean')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_name'].agg([('account_name','first')]), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['name_changed'].agg('first'), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['handle_changed'].agg('first'), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['page_admin_top_country_changed'].agg('first'), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.pageAdminTopCountry'].agg([('account_page_admin_top_country','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.handle'].agg([('account_handle','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.platform'].agg([('account_platform','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.platformId'].agg([('account_platformId','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.verified'].agg([('account_verified','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.accountType'].agg([('account_account_type','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.reset_index().rename(columns={'account.url':'account_url'})
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_pageAdminTopCountry'].agg([('account_page_admin_top_country','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_handle'].agg([('account_handle','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_platform'].agg([('account_platform','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_platformId'].agg([('account_platformId','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_verified'].agg([('account_verified','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_accountType'].agg([('account_account_type','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.reset_index().rename(columns={'account_url':'account_url'})
 
         #filter the dataframe with the graph nodes
         node_info_df = account_info_df[account_info_df['account_url'].isin(list(full_graph.nodes))]
@@ -314,7 +314,7 @@ class Shared:
                 i=i+1
                 logger.info(f"processing {i} of {urls_count}, url={row['URL']}")
                 summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
-                if summary_df.groupby('account.url')['account.url'].nunique().shape[0]>1:
+                if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
                     summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
                     #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
                     date_serie = summary_df['date'].astype('int64') // 10 ** 9
@@ -327,7 +327,7 @@ class Shared:
                     #summary_df = summary_df[['cut', 'count']].copy(deep=True)
                     # summary_df = summary_df.rename(columns = {'date': 'share_date'})
                     summary_df.loc[:,'url'] = row['URL']
-                    summary_df.loc[:,'account_url'] = cut_gb['account.url'].transform(lambda x: [x.tolist()]*len(x))
+                    summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
                     summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
                     summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
                     summary_df = summary_df[summary_df['count']>1]
