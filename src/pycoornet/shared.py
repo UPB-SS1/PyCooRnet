@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from .utils import Utils
 
+logger = logging.getLogger(__name__)
 
 class Shared:
     """Shared class docsgring
@@ -40,11 +41,11 @@ class Shared:
             - **time** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
         if 0<p<1 == False:
-            logging.error('The p value must be between 0 and 1')
+            logger.error('The p value must be between 0 and 1')
             raise Exception('The p value must be between 0 and 1')
 
         if 0<q<1 == False:
-            logging.error('The q value must be between 0 and 1')
+            logger.error('The q value must be between 0 and 1')
             raise Exception('The q value must be between 0 and 1')
 
 
@@ -52,15 +53,15 @@ class Shared:
         if keep_ourl_only:
             crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df['is_orig'] == True]
             if crowtangle_shares_df.shape[0] < 2:
-                logging.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
+                logger.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
                 raise Exception("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
             else:
-                logging.info("Coordination interval estimated on shares matching original URLs")
+                logger.info("Coordination interval estimated on shares matching original URLs")
 
         # clean urls?
         if clean_urls:
             crowtangle_shares_df = Utils.clean_urls(crowtangle_shares_df, 'expanded')
-            logging.info('Coordination interval estimated on cleaned URLs')
+            logger.info('Coordination interval estimated on cleaned URLs')
 
 
         crowtangle_shares_df = crowtangle_shares_df[['id', 'date', 'expanded']]
@@ -110,20 +111,20 @@ class Shared:
         if coordination_interval == 0:
             coordination_interval = 1
             coord_interval = (summary_secs, coordination_interval)
-            logging.warning(f'q (quantile of quickest URLs to be filtered): {q}')
-            logging.warning(f'p (percentage of total shares to be reached): {p}')
-            logging.warning(f'coordination interval from estimate_coord_interval: {coordination_interval}')
-            logging.warning('Warning: with the specified parameters p and q the median was 0 secs. The coordination interval has been automatically set to 1 secs')
+            logger.warning(f'q (quantile of quickest URLs to be filtered): {q}')
+            logger.warning(f'p (percentage of total shares to be reached): {p}')
+            logger.warning(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+            logger.warning('Warning: with the specified parameters p and q the median was 0 secs. The coordination interval has been automatically set to 1 secs')
         else:
             coord_interval = (summary_secs, coordination_interval)
-            logging.info(f'q (quantile of quickest URLs to be filtered): {q}')
-            logging.info(f'p (percentage of total shares to be reached): {p}')
-            logging.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
+            logger.info(f'q (quantile of quickest URLs to be filtered): {q}')
+            logger.info(f'p (percentage of total shares to be reached): {p}')
+            logger.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
 
         return coord_interval
 
     def __buid_graph(self, crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight = 90, timestamps = False):
-        logging.info("Bulding graph")
+        logger.info("Bulding graph")
         coord_df = coordinated_shares_df[['account_url', 'url', 'share_date']].reset_index(drop=True)
         coord_graph = nx.from_pandas_edgelist(coord_df, 'account_url', 'url', create_using=nx.DiGraph())
 
@@ -144,34 +145,34 @@ class Shared:
         full_graph = bipartite.weighted_projected_graph(bipartite_graph, account_urls)
 
         #pandas helper dataframe to calcule graph node attribues
-        crowtangle_shares_df['account.name'] = crowtangle_shares_df['account.name'].astype(str)
-        crowtangle_shares_df['account.handle'] = crowtangle_shares_df['account.handle'].astype(str)
-        crowtangle_shares_df['account.pageAdminTopCountry'] = crowtangle_shares_df['account.pageAdminTopCountry'].astype(str)
-        crowtangle_shares_gb = crowtangle_shares_df.groupby('account.url')
-        crowtangle_shares_df['name_changed']=(crowtangle_shares_gb['account.name'].transform("nunique"))>1
-        crowtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account.handle'].transform("nunique"))>1
-        crowtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account.pageAdminTopCountry'].transform("nunique"))>1
-        crowtangle_shares_df['account.name'] = crowtangle_shares_gb['account.name'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account.handle'] = crowtangle_shares_gb['account.handle'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account.pageAdminTopCountry'] = crowtangle_shares_gb['account.pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df[['account.name','account.handle','account.pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
+        crowtangle_shares_df['account_name'] = crowtangle_shares_df['account_name'].astype(str)
+        crowtangle_shares_df['account_handle'] = crowtangle_shares_df['account_handle'].astype(str)
+        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_df['account_pageAdminTopCountry'].astype(str)
+        crowtangle_shares_gb = crowtangle_shares_df.groupby('account_url')
+        crowtangle_shares_df['name_changed']=(crowtangle_shares_gb['account_name'].transform("nunique"))>1
+        crowtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account_handle'].transform("nunique"))>1
+        crowtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account_pageAdminTopCountry'].transform("nunique"))>1
+        crowtangle_shares_df['account_name'] = crowtangle_shares_gb['account_name'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df['account_handle'] = crowtangle_shares_gb['account_handle'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_gb['account_pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
+        crowtangle_shares_df[['account_name','account_handle','account_pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
 
-        crowtangle_shares_gb = crowtangle_shares_df.reset_index().groupby(['account.url'])
+        crowtangle_shares_gb = crowtangle_shares_df.reset_index().groupby(['account_url'])
 
         account_info_df = crowtangle_shares_gb['index'].agg([('shares','count')])
         account_info_df = account_info_df.merge(pd.DataFrame(crowtangle_shares_gb['is_coordinated'].apply(lambda x: (x==True).sum())).rename(columns={'is_coordinated':'coord_shares'}), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.subscriberCount'].agg([('avg_account_subscriber_count','mean')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.name'].agg([('account_name','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_subscriberCount'].agg([('avg_account_subscriber_count','mean')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_name'].agg([('account_name','first')]), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['name_changed'].agg('first'), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['handle_changed'].agg('first'), left_index=True, right_index=True)
         account_info_df = account_info_df.merge(crowtangle_shares_gb['page_admin_top_country_changed'].agg('first'), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.pageAdminTopCountry'].agg([('account_page_admin_top_country','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.handle'].agg([('account_handle','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.platform'].agg([('account_platform','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.platformId'].agg([('account_platformId','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.verified'].agg([('account_verified','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.merge(crowtangle_shares_gb['account.accountType'].agg([('account_account_type','first')]), left_index=True, right_index=True)
-        account_info_df = account_info_df.reset_index().rename(columns={'account.url':'account_url'})
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_pageAdminTopCountry'].agg([('account_page_admin_top_country','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_handle'].agg([('account_handle','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_platform'].agg([('account_platform','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_platformId'].agg([('account_platformId','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_verified'].agg([('account_verified','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.merge(crowtangle_shares_gb['account_accountType'].agg([('account_account_type','first')]), left_index=True, right_index=True)
+        account_info_df = account_info_df.reset_index().rename(columns={'account_url':'account_url'})
 
         #filter the dataframe with the graph nodes
         node_info_df = account_info_df[account_info_df['account_url'].isin(list(full_graph.nodes))]
@@ -211,7 +212,7 @@ class Shared:
         highly_connected_graph.remove_nodes_from(list(nx.isolates(highly_connected_graph)))
 
         if timestamps:
-            logging.info("Calculating nodes timestamps")
+            logger.info("Calculating nodes timestamps")
             vec_func = np.vectorize(lambda u,v: bipartite_graph.get_edge_data(u,v)['share_date'])
             attributes = []
             for (u,v) in highly_connected_graph.edges():
@@ -220,7 +221,7 @@ class Shared:
 
             it = iter(attributes)
             nx.set_edge_attributes(highly_connected_graph, dict(zip(it, it)))
-            logging.info("timestamps calculated")
+            logger.info("timestamps calculated")
 
         #find and annotate nodes-components
         connected_components=list(nx.connected_components(highly_connected_graph))
@@ -240,7 +241,7 @@ class Shared:
 
         #update graph attribues
         nx.set_node_attributes(highly_connected_graph, attributes_df.set_index('node').to_dict('index'))
-        logging.info("graph builded")
+        logger.info("graph builded")
 
         return highly_connected_graph, q
 
@@ -311,9 +312,9 @@ class Shared:
             i=0
             for index, row in urls_df.iterrows():
                 i=i+1
-                logging.info(f"processing {i} of {urls_count}, url={row['URL']}")
+                logger.info(f"processing {i} of {urls_count}, url={row['URL']}")
                 summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
-                if summary_df.groupby('account.url')['account.url'].nunique().shape[0]>1:
+                if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
                     summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
                     #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
                     date_serie = summary_df['date'].astype('int64') // 10 ** 9
@@ -326,7 +327,7 @@ class Shared:
                     #summary_df = summary_df[['cut', 'count']].copy(deep=True)
                     # summary_df = summary_df.rename(columns = {'date': 'share_date'})
                     summary_df.loc[:,'url'] = row['URL']
-                    summary_df.loc[:,'account_url'] = cut_gb['account.url'].transform(lambda x: [x.tolist()]*len(x))
+                    summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
                     summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
                     summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
                     summary_df = summary_df[summary_df['count']>1]
@@ -339,7 +340,7 @@ class Shared:
 
             data_df = pd.concat(data_list)
             if data_df.shape[0] == 0:
-                logging.info('there are not enough shares!')
+                logger.info('there are not enough shares!')
                 return None
 
             coordinated_shares_df = data_df.reset_index(drop=True).apply(pd.Series.explode).reset_index(drop=True)
@@ -354,6 +355,8 @@ class Shared:
 
             highly_connected_graph, q =  self.__buid_graph(crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-
-
         return highly_connected_graph, q
+
+    def componentes_summary(self, highly_connected_graph):
+        #pd.DataFrame.from_dict(dict(highly_connected_graph.nodes(data=True)), orient='index')
+        pass
