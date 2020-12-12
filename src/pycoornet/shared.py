@@ -355,8 +355,4 @@ class Shared:
 
             highly_connected_graph, q =  self.__buid_graph(crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-        return highly_connected_graph, q
-
-    def componentes_summary(self, highly_connected_graph):
-        #pd.DataFrame.from_dict(dict(highly_connected_graph.nodes(data=True)), orient='index')
-        pass
+        return crowtangle_shares_df, highly_connected_graph, q
