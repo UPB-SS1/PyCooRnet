@@ -7,6 +7,8 @@ import time
 from tqdm import tqdm
 from .utils import Utils
 
+logger = logging.getLogger(__name__)
+
 
 class CrowdTangle:
     """Descripción de la clase.
@@ -35,7 +37,7 @@ class CrowdTangle:
             sleep_time (int, optional): pause between queries to respect API rate limits. Default to 20 secs, it can be lowered or increased
                                         depending on the assigned API rate limit. Defaults to 20.
             clean_urls (bool, optional): clean the URLs from tracking parameters. Defaults to False.
-            save_ctapi_output (bool, optional): saves the original CT API output in ./rawdata/. Defaults to False.
+            save_ctapi_output (bool, optional): saves the original CT API output in rawdata/ folder. Defaults to False.
 
         Raises:
             Exception: [description]
@@ -56,17 +58,6 @@ class CrowdTangle:
                 message = f"Can't find {date_column} in urls dataframe"
                 raise Exception(message)
 
-            # initialize logfile
-            #Create and configure logger
-            #Creating an object
-            logger=logging.getLogger()
-            logger.setLevel(logging.INFO)
-
-            fh = logging.FileHandler("logfile.log")
-
-            #Setting the threshold of logger to INFO
-            fh.setLevel(logging.INFO)
-            logger.addHandler(fh)
 
 
             logger.info("########## PyCoornet ##########")
@@ -107,7 +98,7 @@ class CrowdTangle:
                                             )
                     # if status is an error
                     if data['status'] != 200:
-                        logging.exception(f"Unexpected http response code on url {url}")
+                        logger.exception(f"Unexpected http response code on url {url}")
                         print(f"Unexpected http response code on url {url}")
                         #next iteration
                         continue
@@ -153,7 +144,7 @@ class CrowdTangle:
                     #concat expanded account and statistics columns
                     df_full = pd.concat([df, account, actual, expected], axis=1)
                     df_full['date'] = pd.to_datetime(df_full['date'])
-                    df_full = df_full.set_index('date')
+                    df_full = df_full.set_index('date', drop=False)
 
                     # remove shares performed more than one week from first share
                     df_full = df_full.loc[(df_full.index <= df_full.index.min()+ pd.Timedelta('7 day'))]
@@ -166,24 +157,24 @@ class CrowdTangle:
                     del df_full
 
                 except:
-                    logging.exception(f"error on {url}")
+                    logger.exception(f"error on {url}")
                     print(f"error on {url}")
                 # wait time
                 time.sleep(sleep_time)
         except Exception as e:
-            logging.exception(f"Exception {e.__class__} occurred.")
+            logger.exception(f"Exception {e.__class__} occurred.")
             raise e
 
         if ct_shares_df.empty:
-            logging.error("No ct_shares were found!")
+            logger.error("No ct_shares were found!")
             raise SystemExit("\n No ct_shares were found!")
 
         #if save_ctapi_output is true
         if save_ctapi_output:
             #create dir to save raw data
-            Path("./rawdata").mkdir(parents=True, exist_ok=True)
+            Path("rawdata").mkdir(parents=True, exist_ok=True)
             # save raw dataframe
-            ct_shares_df.to_csv('./rawdata/ct_shares_df.csv', index=False)
+            ct_shares_df.to_csv('rawdata/ct_shares_df.csv', index=False)
 
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
@@ -206,8 +197,5 @@ class CrowdTangle:
         logger.info(f"Unique URL in Crowdtangle shares: {uni}")
         sum_accu = sum(ct_shares_df["account_verified"])
         logger.info(f"Links in CT shares matching original URLs: {sum_accu}")
-
-        #cleaning memory
-        del urls
 
         return ct_shares_df
