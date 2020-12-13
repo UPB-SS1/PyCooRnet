@@ -18,7 +18,7 @@ setup(
     description="Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author = 'Camilo Andrés Soto Montoya',
+    author = 'Camilo Andres Soto Montoya',
     author_email = 'camilo.soto@outlook.com',
     url="https://github.com/UPB-SS1/PyCooRnet",
     packages=find_packages(where='src' ,exclude=["tests", "*.test", "*.tes.*"]),
