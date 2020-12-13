@@ -43,13 +43,15 @@ class Utils:
             '\\?platform',
             '\\?__twitter_impression',
             '\\/amp$',
+            '\\?amp$',
             '\\/amp=.*',
             '\\?verso.*',
             '\\?mc_cid.*',
             '\\?mc_eid.*',
             '\\?source=TDB.*',
-            '\\?spMailingID.*'
-            '\\?mcd.*'
+            '\\?spMailingID.*',
+            '\\?mcd.*',
+            '\\?cd-origin=.*'
             ]
 
         dataframe[url_column] = dataframe[url_column].str.replace('|'.join(pattern), '', regex=True)

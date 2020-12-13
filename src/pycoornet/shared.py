@@ -187,11 +187,11 @@ class Shared:
                     'avg_account_subscriber_count': records['avg_account_subscriber_count'].values[0],
                     'account_platform': records['account_platform'].values[0],
                     'account_name': records['account_name'].values[0],
-                    'account_verified': records['account_verified'].values[0],
+                    'account_verified': 1 if records['account_verified'].values[0] else 0,
                     'account_handle': records['account_handle'].values[0],
-                    'name_changed': records['name_changed'].values[0],
-                    'handle_changed': records['handle_changed'].values[0],
-                    'page_admin_top_country_changed': records['page_admin_top_country_changed'].values[0],
+                    'name_changed': 1 if records['name_changed'].values[0] else 0,
+                    'handle_changed': 1 if records['handle_changed'].values[0] else 0,
+                    'page_admin_top_country_changed': 1 if records['page_admin_top_country_changed'].values[0] else 0,
                     'account_page_admin_top_country': records['account_page_admin_top_country'].values[0],
                     'account_account_type': records['account_account_type'].values[0]
 
@@ -355,8 +355,4 @@ class Shared:
 
             highly_connected_graph, q =  self.__buid_graph(crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-        return highly_connected_graph, q
-
-    def componentes_summary(self, highly_connected_graph):
-        #pd.DataFrame.from_dict(dict(highly_connected_graph.nodes(data=True)), orient='index')
-        pass
+        return crowtangle_shares_df, highly_connected_graph, q
