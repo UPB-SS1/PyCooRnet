@@ -30,7 +30,7 @@ Social Networks, Facebook, CrowdTangle, Graphs, Coordinated behavior, CLSB, Pyth
 
 
 # Resultados
-![Grafo de análises de commondreams.\label{fig:Graph}](img/commondreams_graph.png)
+![Grafo de análises de commondreams.\label{fig:commondreams_graph}](img/commondreams_graph.png)
 
 # Citations
 
@@ -47,10 +47,7 @@ For a quick reference, the following citation commands can be used:
 - `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
 
 # Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
+\autoref{fig:commondreams_graph}.
 
 # Acknowledgements
 
