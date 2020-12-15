@@ -150,3 +150,6 @@ output/
 #debung
 debug.py
 rawdata/
+
+#bib
+*bib.sav
