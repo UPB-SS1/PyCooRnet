@@ -51,7 +51,7 @@ En \autoref {fig:commondreams_graph} los nodos representan las páginas de faceb
 
 * El 50% de las páginas o grupos que tienen un comportamiento coordinado, están agrupadas en 7 comunidades. \autoref {fig:clusters}.
 
-![Comunidades.\label{fig:clusters}](img/clusters.png)
+![Comunidades.\label{fig:clusters}](img/clusters.png){width=60%}
 
 * La página o grupo más influenciadores son:
 
@@ -70,7 +70,7 @@ Siguiento la metodología propuesta en "It takes a village to manipulate the med
 $$firstShareDate = min(url[date])$$
 $$url[secondsFromFirstShare] = url[date])-firstShareDate$$
 
-Se calculan las publicaciones que compartieron estas URL con el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto $$url[secondsFromFirstShare]$$.
+Se calculan las publicaciones que compartieron estas URL con el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto $url[secondsFromFirstShare]$.
 
 Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán) y *p* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
 
@@ -81,15 +81,5 @@ Esto nos permite detectar quienes comparten en un periodo de tiempo corto la mis
 Para realizar un análisis de este comportamiento se construye un grafo. Usando el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008], se detectan las páginas de Facebook que se comportan como una comunidad compartiendo enlaces entre sí y cuáles son sus nodos influenciadores.
 
 Este grafo puede ser exportado a diferentes formatos como GEXF, GML, GraphML, etc. Para ser importado en herramientas de procesamiento y visualización de grafos, y así analizar el comportamiento de estas comunidades.
-
-
-# Figures
-\autoref {fig:commondreams_graph}.
-\autoref {fig:clusters}.
-
-# Acknowledgements
-
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
 
 # References
