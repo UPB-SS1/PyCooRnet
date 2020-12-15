@@ -35,7 +35,7 @@ Datos los parámetros:
 
 * Percentil donde se encuentrán las URL compartidas rápidamente: 10.
 
-* Porcentaje de publicaciones investidadas: 50%.
+* P de publicaciones alcanzadas: 50%.
 
 Se obtiene un *intervalo de coordinación de 25 segundos*.
 
@@ -67,10 +67,21 @@ En \autoref {fig:commondreams_graph} los nodos representan las páginas de faceb
 # Modelo
 Siguiento la metodología propuesta en "It takes a village to manipulate the media: coordinated link sharing behavior during 2018 and 2019 Italian elections" [@Giglietto2020], se calcula el intervalo de coordinación tomando tomando para cada una de las URL, la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
 
-$$firstShareDate = min(url[date])$$
-$$url[secondsFromFirstShare] = url[date])-firstShareDate$$
+```py
+firstShareDate = min(url['date'])
+url['secondsFromFirstShare'] = url['date'])-firstShareDate
+```
+Se calculan rangos de las URL a partir de la fecha, organizándolas de menor a mayor
+```python
+url['rank'] = url[date].rank(ascending=True, method='first')
+url['perc_of_shares'] = url[date].rank(ascending=True, method='average')
+```
+``url['rank']`` es usado para encontrar la segunda vez que se compartió esa URL, y así encontrar cuál fué el tiempo inusual más rápido.
 
-Se calculan las publicaciones que compartieron estas URL con el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto $url[secondsFromFirstShare]$.
+``url['perc_of_shares']`` almacena el rango promedio dentro el grupo, ese valor se usa para filtrar con el pámetro *P*. [@pythonrank]
+
+
+Se calculan las publicaciones que compartieron estas URL con el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto ``url['secondsFromFirstShare']``.
 
 Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán) y *p* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
 
