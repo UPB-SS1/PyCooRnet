@@ -4,6 +4,7 @@ import networkx as nx
 from networkx.algorithms import bipartite
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from .utils import Utils
 
 logger = logging.getLogger(__name__)
@@ -312,33 +313,35 @@ class Shared:
             data_list = []
             urls_count = urls_df.shape[0]
             i=0
-            for index, row in urls_df.iterrows():
-                i=i+1
-                logger.info(f"processing {i} of {urls_count}, url={row['URL']}")
-                summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
-                if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
-                    summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
-                    #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
-                    date_serie = summary_df['date'].astype('int64') // 10 ** 9
-                    max = date_serie.max()
-                    min = date_serie.min()
-                    div = (max-min)/coordination_interval + 1
-                    summary_df["cut"] = pd.cut(summary_df['date'],int(div)).apply(lambda x: x.left).astype('datetime64[ns]')
-                    cut_gb = summary_df.groupby('cut')
-                    summary_df.loc[:,'count'] = cut_gb['cut'].transform('count')
-                    #summary_df = summary_df[['cut', 'count']].copy(deep=True)
-                    # summary_df = summary_df.rename(columns = {'date': 'share_date'})
-                    summary_df.loc[:,'url'] = row['URL']
-                    summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
-                    summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
-                    summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
-                    summary_df = summary_df[summary_df['count']>1]
-                    if summary_df.shape[0]>1:
-                        summary_df = summary_df.loc[summary_df.astype(str).drop_duplicates().index]
-                        #summary_df['account_url'] = [account_url] * summary_df.shape[0]
-                        #summary_df['share_date'] = [dates] * summary_df.shape[0]
 
-                        data_list.append(summary_df)
+            with tqdm(total=urls_df.shape[0]) as pbar:
+                for index, row in urls_df.iterrows():
+                    pbar.update(1)
+                    i=i+1
+                    logger.debug(f"processing {i} of {urls_count}, url={row['URL']}")
+                    summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
+                    if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
+                        summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
+                        #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
+                        date_serie = summary_df['date'].astype('int64') // 10 ** 9
+                        max = date_serie.max()
+                        min = date_serie.min()
+                        div = (max-min)/coordination_interval + 1
+                        summary_df["cut"] = pd.cut(summary_df['date'],int(div)).apply(lambda x: x.left).astype('datetime64[ns]')
+                        cut_gb = summary_df.groupby('cut')
+                        summary_df.loc[:,'count'] = cut_gb['cut'].transform('count')
+                        #summary_df = summary_df[['cut', 'count']].copy(deep=True)
+                        # summary_df = summary_df.rename(columns = {'date': 'share_date'})
+                        summary_df.loc[:,'url'] = row['URL']
+                        summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
+                        summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
+                        summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
+                        summary_df = summary_df[summary_df['count']>1]
+                        if summary_df.shape[0]>1:
+                            summary_df = summary_df.loc[summary_df.astype(str).drop_duplicates().index]
+                            #summary_df['account_url'] = [account_url] * summary_df.shape[0]
+                            #summary_df['share_date'] = [dates] * summary_df.shape[0]
+                            data_list.append(summary_df)
 
             data_df = pd.concat(data_list)
             if data_df.shape[0] == 0:
