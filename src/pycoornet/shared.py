@@ -84,8 +84,8 @@ class Shared:
         ranked_shares_df['ct_shares_count']=shares_gb['id'].transform('nunique')
         ranked_shares_df['first_share_date'] = shares_gb['date'].transform('min')
         ranked_shares_df['rank'] = shares_gb['date'].rank(ascending=True, method='first')
-        #ranked_shares_df['perc_of_shares'] = ranked_shares_df['rank']/ranked_shares_df['ct_shares_count']
-        ranked_shares_df['perc_of_shares'] = shares_gb['date'].rank(ascending=True)
+        ranked_shares_df['perc_of_shares'] = ranked_shares_df['rank']/ranked_shares_df['ct_shares_count']
+        #ranked_shares_df['perc_of_shares'] = shares_gb['date'].rank(ascending=True)
         ranked_shares_df['sec_from_first_share'] = (ranked_shares_df['date'] - ranked_shares_df['first_share_date']).dt.total_seconds()
         ranked_shares_df = ranked_shares_df.sort_values(by = 'expanded')
 
