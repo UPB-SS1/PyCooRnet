@@ -352,7 +352,7 @@ class Shared:
 
             crowtangle_shares_df = crowtangle_shares_df.reset_index(drop=True)
             crowtangle_shares_df.loc[:,'coord_expanded']=crowtangle_shares_df['expanded'].isin(coordinated_shares_df['url'])
-            crowtangle_shares_df.loc[:,'coord_date']=crowtangle_shares_df['date'].isin(coordinated_shares_df['share_date']).values
+            crowtangle_shares_df.loc[:,'coord_date']=crowtangle_shares_df['date'].astype('datetime64[ns]').isin(coordinated_shares_df['share_date'])
             crowtangle_shares_df.loc[:,'coord_account_url']=crowtangle_shares_df['date'].isin(coordinated_shares_df['share_date']).values
 
             crowtangle_shares_df.loc[:,'is_coordinated'] = crowtangle_shares_df.apply(lambda x : True if (x['coord_expanded'] and x['coord_date'] and x['coord_account_url']) else False, axis=1)
