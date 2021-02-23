@@ -156,7 +156,7 @@ class CrowdTangle:
                     del df
                     del df_full
 
-                except:
+                except Exception as e:
                     logger.exception(f"error on {url}")
                     print(f"error on {url}")
                 # wait time
