@@ -13,6 +13,11 @@ CLSB refers to a specific coordinated activity performed by a network of Faceboo
 
 To identify such networks, we designed, implemented and tested an algorithm that detects sets of Facebook public entities which performed CLSB by (1) estimating a time threshold that identifies URLs shares performed by multiple distinguished entities within an unusually short period of time (as compared to the entire dataset), and (2) grouping the entities that repeatedly shared the same news story within this coordination interval. The rationale is that, while it may be common that several entities share the same URLs, it is unlikely, unless a consistent coordination exists, that this occurs within the time threshold and repeatedly.
 
+## Installation
+```sh
+pip install pycoornet
+```
+
 ## Usage example
 ```py
 from pycoornet.crowdtangle import CrowdTangle
