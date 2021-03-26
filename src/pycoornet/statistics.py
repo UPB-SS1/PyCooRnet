@@ -34,7 +34,7 @@ class Statistics:
 
         highly_connected_coordinated_entities_gb = highly_connected_coordinated_entities_df.groupby('component')
 
-        summary_entities_df = highly_connected_coordinated_entities_df['component'].value_counts().to_frame('entities').sort_index()
+        summary_entities_df = highly_connected_coordinated_entities_gb.size().to_frame('entities').sort_index()
         summary_entities_df = pd.merge(summary_entities_df, highly_connected_coordinated_entities_gb['avg_account_subscriber_count'].mean().to_frame('avg_subscriber_count'), left_index=True, right_index=True)
         summary_entities_df = pd.merge(summary_entities_df, highly_connected_coordinated_entities_gb.apply(lambda x: (x['coord_shares']/(x['shares']+x['coord_shares'])).mean()).to_frame('coor_share_ratio_avg'), left_index=True, right_index=True)
         summary_entities_df = pd.merge(summary_entities_df, highly_connected_coordinated_entities_gb.apply(lambda x: (x['strength']/x['degree']).mean()).to_frame('coor_score_avg'), left_index=True, right_index=True)
@@ -55,5 +55,10 @@ class Statistics:
         summary_df = pd.merge(summary_df, ct_shares_marked_gb['parent_domain'].apply(lambda x: x.value_counts().nlargest().index.to_list()).to_frame('top_parent_domain'), left_index=True, right_index=True)
 
         return summary_df
+
+    @staticmethod
+    def get_top_coord_urls(crowtangle_shares_df, shares_graph, order_by = "engagement", component=True, top=10):
+        highly_connected_coordinated_entities_df = pd.DataFrame.from_dict(dict(shares_graph.nodes(data=True)), orient='index').reset_index().rename({'index':'name'}, axis = 'columns')
+    pass
 
 
