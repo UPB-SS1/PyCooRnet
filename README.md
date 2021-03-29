@@ -41,9 +41,12 @@ def main():
         node[1]['label']=node[1]['account_name']
     nx.write_gexf(shares_graph, "rawdata/coomondreams/shares.gexf")
 
+    componet_summary_df = Statistics.component_summary(crowtangle_shares_df, shares_graph)
+    top_urls_df = Statistics.get_top_coord_urls(crowtangle_shares_df, shares_graph)
+
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, filename="pycoornet.log")
     main()
 ```
 
