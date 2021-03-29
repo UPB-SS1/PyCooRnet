@@ -1,8 +1,9 @@
 import networkx as nx
-import pandas as pd
-from urllib.parse import urlparse
-import tldextract
 import numpy as np
+import pandas as pd
+import tldextract
+from urllib.parse import urlparse
+
 
 class Statistics:
     @staticmethod
@@ -54,11 +55,39 @@ class Statistics:
         summary_df = pd.merge(summary_df, ct_shares_marked_gb['full_domain'].apply(lambda x: x.value_counts().nlargest().index.to_list()).to_frame('top_full_domain'), left_index=True, right_index=True)
         summary_df = pd.merge(summary_df, ct_shares_marked_gb['parent_domain'].apply(lambda x: x.value_counts().nlargest().index.to_list()).to_frame('top_parent_domain'), left_index=True, right_index=True)
 
-        return summary_df
+        return summary_df.reset_index()
 
     @staticmethod
-    def get_top_coord_urls(crowtangle_shares_df, shares_graph, order_by = "engagement", component=True, top=10):
+    def get_top_coord_urls(crowtangle_shares_df, shares_graph):
         highly_connected_coordinated_entities_df = pd.DataFrame.from_dict(dict(shares_graph.nodes(data=True)), orient='index').reset_index().rename({'index':'name'}, axis = 'columns')
-    pass
+
+        crowtangle_shares_gb = crowtangle_shares_df.groupby('expanded')
+
+        urls_df = crowtangle_shares_gb[['statistics_actual_likeCount','statistics_actual_shareCount','statistics_actual_commentCount','statistics_actual_loveCount','statistics_actual_wowCount','statistics_actual_hahaCount','statistics_actual_sadCount','statistics_actual_angryCount']].apply(lambda x: x.sum())
+        urls_df = pd.merge(urls_df, urls_df.sum(axis=1).to_frame('engagement'), left_index=True, right_index=True)
+
+        crowtangle_shares_filtered_df = crowtangle_shares_df[crowtangle_shares_df['is_coordinated'] & crowtangle_shares_df.set_index('account_url').index.isin(highly_connected_coordinated_entities_df.set_index('name').index)]
+
+        urls_df = urls_df[urls_df.index.isin(crowtangle_shares_filtered_df.set_index('expanded').index)]
+
+        count_df = crowtangle_shares_df.groupby('expanded')['expanded'].count().to_frame('count')
+
+        urls_df = pd.merge(urls_df, count_df, left_index=True, right_index=True)
+        urls_df = urls_df.where(urls_df['count']>0)
+        urls_df = pd.merge(urls_df, crowtangle_shares_df.groupby('expanded')['account_url'].apply(lambda x: np.unique(list(x))).to_frame('account_url'), left_index=True, right_index=True)
+        urls_df = pd.merge(urls_df, crowtangle_shares_filtered_df.groupby('expanded')['account_url'].apply(lambda x: np.unique(list(x))).to_frame('coor_account_url'), left_index=True, right_index=True)
+        urls_df = pd.merge(urls_df, crowtangle_shares_df.groupby('expanded')['account_name'].apply(lambda x: np.unique(list(x))).to_frame('account_name'), left_index=True, right_index=True)
+        urls_df = pd.merge(urls_df, crowtangle_shares_filtered_df.groupby('expanded')['account_name'].apply(lambda x: np.unique(list(x))).to_frame('coor_account_name'), left_index=True, right_index=True)
+
+        highly_connected_filtered_df = highly_connected_coordinated_entities_df[highly_connected_coordinated_entities_df['name'].isin(urls_df['coor_account_url'].explode('coor_account_url'))]
+
+        merge_df = pd.merge(urls_df[['coor_account_url']].explode('coor_account_url').reset_index(), highly_connected_filtered_df.groupby('name')['component'].apply(lambda x: np.unique(list(x))).to_frame('component').reset_index(), left_on='coor_account_url', right_on='name').drop(columns=['name','coor_account_url'])
+        merge_df = merge_df.groupby('expanded').agg(list)
+        merge_df['component'] = merge_df['component'].apply(lambda x: np.unique(x))
+        merge_df.rename(columns={'component':'components'}, inplace=True)
+
+        urls_df = pd.merge(urls_df, merge_df, left_index=True, right_index=True)
+
+        return urls_df.reset_index()
 
 
