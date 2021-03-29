@@ -13,8 +13,8 @@ class Shared:
     """Shared class docsgring
     """
 
-    def __init__(self):
-        pass
+    # def __init__(self):
+    #     pass
 
     def __estimate_coord_interval(self, crowtangle_shares_df, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
         """Estimates a threshold in seconds that defines a coordinated link share. While it is common that multiple
