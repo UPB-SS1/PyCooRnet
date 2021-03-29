@@ -14,4 +14,4 @@ python-louvain>=0.14
 rpy2
 pyarrow
 twine
-tldextract
+tldextract>=3.1.0
