@@ -17,20 +17,24 @@ To identify such networks, we designed, implemented and tested an algorithm that
 ```sh
 pip install pycoornet
 ```
+## Jupyter Notebook Example
+
+[pycoonet_example.ipynb](samples/pycoornet_example.ipynb)
 
 ## Usage example
-```py
+```python
 from pycoornet.crowdtangle import CrowdTangle
 from pycoornet.shared import Shared
+from pycoornet.statistics import Statistics
 import networkx as nx
 import numpy as np
 import pandas as pd
 import logging
 
 
-
 def main():
     links_df = pd.read_csv('samples/sample_source_links.csv')
+    # Init CrowdTangle with api key
     crowd_tangle = CrowdTangle("abc123def345")
     ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', sleep_time=1)
     shared = Shared()
@@ -39,7 +43,7 @@ def main():
     #Build Gephi File
     for node in shares_graph.nodes(data=True):
         node[1]['label']=node[1]['account_name']
-    nx.write_gexf(shares_graph, "rawdata/coomondreams/shares.gexf")
+    nx.write_gexf(shares_graph, "samples/out/shares.gexf")
 
     componet_summary_df = Statistics.component_summary(crowtangle_shares_df, shares_graph)
     top_urls_df = Statistics.get_top_coord_urls(crowtangle_shares_df, shares_graph)
