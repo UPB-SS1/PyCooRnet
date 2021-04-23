@@ -8,6 +8,8 @@ based on https://github.com/fabiogiglietto/CooRnet
 ## Overview
 Given a set of URLs, this package detects coordinated link sharing behavior (CLSB) and outputs the network of entities that performed such behavior.
 
+This python package requires a [CrowdTangle API](https://github.com/CrowdTangle/API) key
+
 ### What do we mean by coordinated link sharing behavior?
 CLSB refers to a specific coordinated activity performed by a network of Facebook pages, groups and verified public profiles (Facebook public entities) that repeatedly shared the same news articles in a very short time from each other.
 
