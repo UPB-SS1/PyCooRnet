@@ -150,7 +150,7 @@ class CrowdTangle:
 
                     # if id column is specified
                     if id_column:
-                        df_full["id_column"] = urls.iloc[i, :].loc['id_column']
+                        df_full["id_column"] = urls.iloc[i, :].loc[id_column]
 
 
                     # remove shares performed more than one week from first share
