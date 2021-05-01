@@ -24,7 +24,8 @@ class CrowdTangle:
             raise Exception('Crowdtangle Api Token is missing')
         self.api_key = api_key
 
-    def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook', 'instagram'), nmax=500, sleep_time=20, clean_urls=False, save_ctapi_output=False):
+    def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook', 'instagram'),
+                   nmax=500, sleep_time=20, clean_urls=False, save_ctapi_output=False, id_column=None, remove_days=None):
         """ Get the URLs shares from CrowdTangle from a list of URLs with publish datetime
 
         Args:
@@ -38,7 +39,8 @@ class CrowdTangle:
                                         depending on the assigned API rate limit. Defaults to 20.
             clean_urls (bool, optional): clean the URLs from tracking parameters. Defaults to False.
             save_ctapi_output (bool, optional): saves the original CT API output in rawdata/ folder. Defaults to False.
-
+            id_column(str,optional): name of the column wherre the id of each URL is stored.
+            remove_days(int,optional): remove shares performed more than X days from first share
         Raises:
             Exception: [description]
             Exception: [description]
@@ -146,8 +148,16 @@ class CrowdTangle:
                     df_full['date'] = pd.to_datetime(df_full['date'])
                     df_full = df_full.set_index('date', drop=False)
 
+                    # if id column is specified
+                    if id_column:
+                        df_full["id_column"] = urls.iloc[i, :].loc[id_column]
+
+
                     # remove shares performed more than one week from first share
-                    df_full = df_full.loc[(df_full.index <= df_full.index.min()+ pd.Timedelta('7 day'))]
+                    if remove_days:
+                        # ex: '7 day'
+                        days = f"{remove_days} day"
+                        df_full = df_full.loc[(df_full.index <= df_full.index.min()+ pd.Timedelta(days))]
 
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)

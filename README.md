@@ -14,6 +14,9 @@ CLSB refers to a specific coordinated activity performed by a network of Faceboo
 To identify such networks, we designed, implemented and tested an algorithm that detects sets of Facebook public entities which performed CLSB by (1) estimating a time threshold that identifies URLs shares performed by multiple distinguished entities within an unusually short period of time (as compared to the entire dataset), and (2) grouping the entities that repeatedly shared the same news story within this coordination interval. The rationale is that, while it may be common that several entities share the same URLs, it is unlikely, unless a consistent coordination exists, that this occurs within the time threshold and repeatedly.
 
 ## Installation
+
+[https://pypi.org/project/pycoornet/](https://pypi.org/project/pycoornet/)
+
 ```sh
 pip install pycoornet
 ```
@@ -36,7 +39,7 @@ def main():
     links_df = pd.read_csv('samples/sample_source_links.csv')
     # Init CrowdTangle with api key
     crowd_tangle = CrowdTangle("abc123def345")
-    ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', sleep_time=1)
+    ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', sleep_time=30)
     shared = Shared()
     crowtangle_shares_df, shares_graph, q = shared.coord_shares(ct_df, clean_urls=True)
 
