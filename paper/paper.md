@@ -11,7 +11,7 @@ authors:
   - name: Soto, Camilo
     orcid: 0000-0001-9831-6131
     affiliation: 1
- - name: Zapata, Jose R.
+  - name: Zapata, Jose R
     orcid: 0000-0003-1484-5816
     affiliation: 1
 affiliations:
