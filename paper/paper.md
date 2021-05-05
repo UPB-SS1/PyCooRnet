@@ -17,7 +17,7 @@ authors:
 affiliations:
  - name: Universidad Pontificia Bolivariana
    index: 1
-date: 12 December 2020
+date: 4 Mayo 2021
 bibliography: paper.bib
 ---
 
@@ -30,9 +30,11 @@ Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión
 # Motivaciones
 
 # Objetivos
-s
+
 
 # Detectando el comportamiento coordinado de intercambio de enlaces
+Para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social. Se deben transformar los datos extraer un *tiempo de coordinación* y usarlo para detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Usando técnicas de ciencia de datos y visualización compleja de datos se analizan estos datos.
+
 Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130], usando PyCrowdTangle [@pycrowdtangle] se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
 Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008] sobre grafos detecta las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
@@ -80,22 +82,22 @@ Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán)
 Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para filtras las URL que se compartieron dentro este umbral.
 
 |      | Seg. desde el primer share |
-|------|------------:|
-| mean | 7.248.030   |
-| std  | 1.986.423   |
-| min  | 0           |
-| 10%  | 0           |
-| 20%  | 1.955       |
-| 30%  | 10.863      |
-| 40%  | 23.302      |
-| 50%  | 40.108      |
-| 60%  | 64.195      |
-| 70%  | 110.119     |
-| 80%  | 232.424     |
-| 90%  | 38.289.150  |
-| max  | 120.799.000 |
+|------|---------------------------:|
+| mean | 7.248.030                  |
+| std  | 1.986.423                  |
+| min  | 0                          |
+| 10%  | 0                          |
+| 20%  | 1.955                      |
+| 30%  | 10.863                     |
+| 40%  | 23.302                     |
+| 50%  | 40.108                     |
+| 60%  | 64.195                     |
+| 70%  | 110.119                    |
+| 80%  | 232.424                    |
+| 90%  | 38.289.150                 |
+| max  | 120.799.000                |
 
-![Box Plot.\label{fig:bloxplot1}](img/bloxplot1.png)
+![Box Plot.\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
 Se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
 
@@ -105,7 +107,7 @@ El set de datos se agrupó por enlace y se organizó por fecha y hora en que se 
 
 Se cambiaron los deltas de tiempo a una escala logarítmicaa y analizamos el histograma.
 
-![Box Plot.\label{fig:bloxplot1}](img/hist1.png)
+![Box Plot.\label{fig:Histograma}](img/hist1.png){width=70%}
 
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
@@ -114,15 +116,15 @@ Para escoger el valor K adecuado se usan el análisis del SSE y de la silueta.
 
 ![SSE\label{fig:sse}](img/sse.png)
 
-![Silhouette\label{fig:silhouette}](img/silhouette.png)
+![Silhouette\label{fig:silhouette}](img/silhouette.png){width=70%}
 
 Analizando los resultados se concluye que el valor de K es igual a 2.
 
 Con este valor de K el resultado del cluster el se siguiente:
 
-![Kmeans k=2\label{fig:kamenas}](img/kmeans.png)
+![Kmeans k=2\label{fig:kamenas}](img/kmeans.png){width=70%}
 
-![Clusters boxplot\label{fig:bloxplot}](img/boxplot.png)
+![Clusters boxplot\label{fig:bloxplot}](img/boxplot.png){width=70%}
 
 Se observa claramente que los clusters están muy definidos con sus centroides muy separados entre ellos, lo cuál se puede comprobar con una prueba de diferencia de medias.
 
