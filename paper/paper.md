@@ -81,10 +81,6 @@ Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán)
 
 Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para filtras las URL que se compartieron dentro este umbral.
 
-you may refer to this table using \@ref(tab:foo)
-
-Table: (\#tab:foo) Your table caption.
-
 |      | Seg. desde el primer share |
 |------|---------------------------:|
 | mean | 7.248.030                  |
@@ -100,6 +96,8 @@ Table: (\#tab:foo) Your table caption.
 | 80%  | 232.424                    |
 | 90%  | 38.289.150                 |
 | max  | 120.799.000                |
+
+Descriptores estadísticos\label{table:deciles}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
