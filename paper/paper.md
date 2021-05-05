@@ -29,11 +29,16 @@ Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión
 
 # Motivaciones
 
+```mermaid
+graph LR
+    A-->B
+```
+
 # Objetivos
 
 
 # Detectando el comportamiento coordinado de intercambio de enlaces
-Para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social. Se deben transformar los datos extraer un *tiempo de coordinación* y usarlo para detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Usando técnicas de ciencia de datos y visualización compleja de datos se analizan estos datos.
+Para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social. Se deben transformar los datos para extraer un *tiempo de coordinación* y usarlo para detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Usando técnicas de ciencia de datos y visualización compleja de datos se analizan estos datos.
 
 Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130], usando PyCrowdTangle [@pycrowdtangle] se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
