@@ -79,7 +79,7 @@ Se calculan las publicaciones que compartieron estas URL con el percentil (pará
 
 Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán) y *p* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
 
-Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para filtras las URL que se compartieron dentro este umbral.
+Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
 
 |      | Seg. desde el primer share |
 |------|---------------------------:|
@@ -97,13 +97,11 @@ Usando este este valor se filtran las URLs (independiente de quien realiza la pu
 | 90%  | 38.289.150                 |
 | max  | 120.799.000                |
 
-Table: Descriptores de los segudos desde el primer share \label{tbl:example}
-
-Mirar \autoref{tbl:example}
+Table: Descriptores de los segudos desde el primer share \label{tbl:firtShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
-Se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
+En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
 
 En el proyecto decidimos utilizar un modelo no supervisado para calcular el tiempo de coordinación.
 
