@@ -41,7 +41,7 @@ Realizando extracción, transformación y carga de los datos (ETL), se construye
 
 Usando herramientas de visualización de grafos como gephi [@ICWSM09154] podemos analizar el fenómeno en cuestión.
 
-![Grafo de Coordinated Link Sharing de Telesur English.\label{fig:telesur_graph}](img/frunch.png){width=50%}
+![Grafo de Coordinated Link Sharing de Telesur English\label{fig:telesur_graph}](img/frunch.png){width=50%}
 
 En \autoref {fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
@@ -81,6 +81,10 @@ Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán)
 
 Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para filtras las URL que se compartieron dentro este umbral.
 
+you may refer to this table using \@ref(tab:foo)
+
+Table: (\#tab:foo) Your table caption.
+
 |      | Seg. desde el primer share |
 |------|---------------------------:|
 | mean | 7.248.030                  |
@@ -97,7 +101,7 @@ Usando este este valor se filtran las URLs (independiente de quien realiza la pu
 | 90%  | 38.289.150                 |
 | max  | 120.799.000                |
 
-![Box Plot.\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
+![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
 Se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
 
@@ -107,14 +111,14 @@ El set de datos se agrupó por enlace y se organizó por fecha y hora en que se 
 
 Se cambiaron los deltas de tiempo a una escala logarítmicaa y analizamos el histograma.
 
-![Box Plot.\label{fig:Histograma}](img/hist1.png){width=70%}
+![Histograma\label{fig:histograma}](img/hist1.png){width=70%}
 
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
 
 Para escoger el valor K adecuado se usan el análisis del SSE y de la silueta.
 
-![SSE\label{fig:sse}](img/sse.png)
+![SSE\label{fig:sse}](img/sse.png){width=70%}
 
 ![Silhouette\label{fig:silhouette}](img/silhouette.png){width=70%}
 
