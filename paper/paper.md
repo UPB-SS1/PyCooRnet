@@ -97,7 +97,9 @@ Usando este este valor se filtran las URLs (independiente de quien realiza la pu
 | 90%  | 38.289.150                 |
 | max  | 120.799.000                |
 
-Table: Descriptores de los segudos desde el primer share
+Table: Descriptores de los segudos desde el primer share {#tbl:example}
+
+Mirar @tbl:example
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
