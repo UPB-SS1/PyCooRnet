@@ -43,7 +43,7 @@ Usando herramientas de visualización de grafos como gephi [@ICWSM09154] podemos
 
 ![Grafo de Coordinated Link Sharing de Telesur English\label{fig:telesur_graph}](img/frunch.png){width=50%}
 
-En \autoref {fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
+En \autoref{fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
 # Tiempo de coordinación
 El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo conviernte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin.
@@ -97,7 +97,7 @@ Usando este este valor se filtran las URLs (independiente de quien realiza la pu
 | 90%  | 38.289.150                 |
 | max  | 120.799.000                |
 
-Descriptores estadísticos\label{table:deciles}
+\label{fig:firsShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
@@ -145,7 +145,7 @@ Este tiempo de coordinación lo usamos como parámetro para los otros modelos qu
 
 * Se encontraron 898 páginas o grupos diferenciados en 131 comunidades (clusters).
 
-* El 50% de las páginas o grupos que tienen un comportamiento coordinado, están agrupadas en 7 comunidades. \autoref {fig:clusters}.
+* El 50% de las páginas o grupos que tienen un comportamiento coordinado, están agrupadas en 7 comunidades. \autoref{fig:clusters}.
 
 ![Comunidades.\label{fig:clusters}](img/clusters.png){width=60%}
 
