@@ -11,7 +11,7 @@ authors:
   - name: Soto, Camilo
     orcid: 0000-0001-9831-6131
     affiliation: 1
-  - name: Zapata, Jose
+ - name: Zapata, Jose R.
     orcid: 0000-0003-1484-5816
     affiliation: 1
 affiliations:
@@ -22,20 +22,24 @@ bibliography: paper.bib
 ---
 
 # Keywords
-Social Networks, Facebook, CrowdTangle, Graphs, Coordinated behavior, CLSB, Python, Clustering, Community Detection
+Social Networks, Facebook, Graphs, Coordinated behavior, CLSB, Python, Clustering, Community Detection
 
-# Abstract
-
+# Summary
 Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, ahora en solamente en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCoorNet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por TeleSur English en la red social Facebook [@facebook] con el objetivo de detectar este comportamiento.
+
+# Motivaciones
+
+# Objetivos
+s
 
 # Detectando el comportamiento coordinado de intercambio de enlaces
 Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130], usando PyCrowdTangle [@pycrowdtangle] se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
-Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008] sobre grafosm detecta las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
+Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008] sobre grafos detecta las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
 
 Usando herramientas de visualización de grafos como gephi [@ICWSM09154] podemos analizar el fenómeno en cuestión.
 
-![Grafo de análises de Telesur English.\label{fig:telesur_graph}](img/frunch.png)
+![Grafo de Coordinated Link Sharing de Telesur English.\label{fig:telesur_graph}](img/frunch.png){width=50%}
 
 En \autoref {fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
