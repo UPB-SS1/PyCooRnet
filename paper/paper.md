@@ -29,16 +29,25 @@ Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión
 
 # Motivaciones
 
-```mermaid
-graph LR
-    A-->B
-```
 
 # Objetivos
 
+# Tiempo De Coordinación
+El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo conviernte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
 
-# Detectando el comportamiento coordinado de intercambio de enlaces
-Para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social. Se deben transformar los datos para extraer un *tiempo de coordinación* y usarlo para detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Usando técnicas de ciencia de datos y visualización compleja de datos se analizan estos datos.
+
+# Detección De El Comportamiento Coordinado De Intercambio De Enlaces
+Como se visualiza en \autoref{fig:clsb_flow}, para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social, transformar los datos para extraer un tiempo de coordinación y usarlo como parámetro con el fin de detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Esto permite usar técnicas de ciencia de datos y visualización compleja de datos para analizar el resultado.
+
+![Flujo de detección del comportamiento coordinado de intercambio de enlaces\label{fig:clsb_flow}](img/clsb-flow.png){width=80%}
+
+# Caso De Estudio
+
+En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior on Facebook in the Run-up of 2018 General Election and 2019 European Election in Italy" [@Giglietto2019], usando ingeniería de características, los autores proponen calcular el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada link y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
+
+Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacional, este es un método que funciona para periodos de tiempo de estudio cortos. Esta metodología supone que el fenómeno de coordinación se genera inmediatamente se comparte por primera vez el enlace, de lo contrario, los tiempos de coordinación se vuelven demasiado grandes y es susceptibles a los datos atípicos.
+
+Por lo tanto, en el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] se optó por utilizar técnicas de Aprendijade de Máquinas para detectar este tiempo de coordinación.
 
 Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130], usando PyCrowdTangle [@pycrowdtangle] se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
@@ -46,45 +55,36 @@ Realizando extracción, transformación y carga de los datos (ETL), se construye
 
 Usando herramientas de visualización de grafos como gephi [@ICWSM09154] podemos analizar el fenómeno en cuestión.
 
-![Grafo de Coordinated Link Sharing de Telesur English\label{fig:telesur_graph}](img/frunch.png){width=50%}
+![Grafo de Coordinated Link Sharing de Telesur English\label{fig:telesur_graph}](img/telesur_nov.png){width=50%}
 
 En \autoref{fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
-# Tiempo de coordinación
-El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo conviernte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin.
-
-En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior on Facebook in the Run-up of 2018 General Election and 2019 European Election in Italy" [@Giglietto2019], usando ingeniería de características, los autores proponen calcular el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada link y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
-
-Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacidad, este es un método que fuciona bien para periodos de tiempo de estudio cortos, esta metodología supone que el fenómeno de viralización se genera inmediatamente se comparte por primera vez el link, de lo contrario los tiempos de coordinación se vuelven demasiado grandes y es susceptible a los datos atípicos.
-
-Por lo tanto, se en el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] se optó por utilizar técnicas de Aprendijade de Máquinas para detectar este tiempo de coordinación.
 
 # Modelamiento
 
-Usando la metodología propuesta por Giglieto, Righetti y Marino en el cuál el tiempo de coordinación se calcula buscando un delta de tiempo entre el momento en que se comparte por primera vez el enlace y el resto de veces que se comparte el mismo enlace, se obtienen los siguientes descriptores estadísticos
+Siguiento la metodología propuesta en Giglieto, Righetti y Marino [@Giglietto2020], se calcula el intervalo de coordinación tomando tomando para cada una de las URL (Localizador de Recursos Uniforme) [@BernersLee1994], la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
 
+Datos los parámetros  *Q* (cuantil de las URL más rápidas que se filtrarán) y *P* (el porcentaje del total de publicaciones que se analizarán) se realizan las siguientes tranformaciones:
 
-Siguiento la metodología propuesta en Giglieto, Righetti y Marino [@Giglietto2020], se calcula el intervalo de coordinación tomando tomando para cada una de las URL, la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
-
-```py
+```python
 firstShareDate = min(url['date'])
 url['secondsFromFirstShare'] = url['date'])-firstShareDate
 ```
-Se calculan rangos de las URL a partir de la fecha, organizándolas de menor a mayor
+Se calculan rangos de las URL a partir de la fecha en que el enlace fué compartido, organizándolos de menor a mayor
 ```python
 url['rank'] = url[date].rank(ascending=True, method='first')
 url['perc_of_shares'] = url[date].rank(ascending=True, method='average')
 ```
-``url['rank']`` es usado para encontrar la segunda vez que se compartió esa URL, y así encontrar cuál fué el tiempo inusual más rápido.
+``url['rank']`` es usado para encontrar la segunda vez que se compartió esa URL, y así calcular cuál fué el tiempo inusual más rápido.
 
 ``url['perc_of_shares']`` almacena el rango promedio dentro el grupo, ese valor se usa para filtrar con el pámetro *P*. [@pythonrank]
 
 
-Se calculan las publicaciones que compartieron estas URL con el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto ``url['secondsFromFirstShare']``.
+Se calculan las publicaciones que compartieron estas URL en el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto ``url['secondsFromFirstShare']``.
 
-Usando como parámetros *q* (cuantil de las URL más rápidas que se filtrarán) y *p* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
+Usando *Q* y *P* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
 
-Usando este este valor se filtran las URLs (independiente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
+Tomando este este valor se filtran las URLs (independiente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
 
 |      | Seg. desde el primer share |
 |------|---------------------------:|
@@ -106,9 +106,9 @@ Table: Descriptores de los segudos desde el primer share \label{tbl:firtShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
-En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
+En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
 
-En el proyecto decidimos utilizar un modelo no supervisado para calcular el tiempo de coordinación.
+En el proyecto se decidió utilizar un modelo no supervisado para calcular el tiempo de coordinación.
 
 El set de datos se agrupó por enlace y se organizó por fecha y hora en que se compartío, par aluego calcular el delta entre cada uno de los enlaces con el fin de crear un histograma de estos deltas, independiente del enlace. Con esto eliminamos el posible sesgo de tiempo que se genera si el tiempo entre que se comparte el primer enlace y el momento en que se comparte "viralmente" es alto.
 
