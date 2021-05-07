@@ -82,9 +82,9 @@ url['perc_of_shares'] = url[date].rank(ascending=True, method='average')
 
 Se calculan las publicaciones que compartieron estas URL en el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto ``url['secondsFromFirstShare']``.
 
-Usando *Q* y *P* (el porcentaje del total de publicaciones que se analizarán), se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
+Usando *Q* y *P* , se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
 
-Tomando este este valor se filtran las URLs (independiente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
+Tomando este este valor se filtran las URLs (independientemente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
 
 |      | Seg. desde el primer share |
 |------|---------------------------:|
@@ -106,20 +106,20 @@ Table: Descriptores de los segudos desde el primer share \label{tbl:firtShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
-En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se obtienen demasiados datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear con los diferentes quantiles y submuestras poblacionales, con el alto tiemplo de procesamiento y análisis que esto implica.
+En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se gran cantidad de datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear entre diferentes quantiles y submuestras poblacionales. Este proceso iterativo necesita una alta carga computacional
 
-En el proyecto se decidió utilizar un modelo no supervisado para calcular el tiempo de coordinación.
+En el proyecto, se decidió utilizar un modelo no supervisado para calcular el tiempo de coordinación.
 
 El set de datos se agrupó por enlace y se organizó por fecha y hora en que se compartío, par aluego calcular el delta entre cada uno de los enlaces con el fin de crear un histograma de estos deltas, independiente del enlace. Con esto eliminamos el posible sesgo de tiempo que se genera si el tiempo entre que se comparte el primer enlace y el momento en que se comparte "viralmente" es alto.
 
-Se cambiaron los deltas de tiempo a una escala logarítmicaa y analizamos el histograma.
+Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acercar su comportamiento a una distribución normal. En \autoref{fig:histograma} visualizamos su histograma.
 
 ![Histograma\label{fig:histograma}](img/hist1.png){width=70%}
 
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
 
-Para escoger el valor K adecuado se usan el análisis del SSE y de la silueta.
+Para escoger el valor K adecuado se usan el análisis de *suma de error al cuadrado* (SSE)  \autoref{fig:sse} y  *silueta*  (distancia de separación entre los clusters. Nos indica como está separado cada puento de un cluster a los clusters vecinos) \autoref{fig:silhouette} .
 
 ![SSE\label{fig:sse}](img/sse.png){width=70%}
 
@@ -127,26 +127,41 @@ Para escoger el valor K adecuado se usan el análisis del SSE y de la silueta.
 
 Analizando los resultados se concluye que el valor de K es igual a 2.
 
-Con este valor de K el resultado del cluster el se siguiente:
+En \autoref{fig:kmeansPlot}  se observa la distribución de los tiempos en cada cluster. Los clusters están muy definidos con sus centroides muy separados entre ellos, lo cuál se puede comprobar con una prueba de diferencia de medias.
 
-![Kmeans k=2\label{fig:kamenas}](img/kmeans.png){width=70%}
+![Kmeans k=2\label{fig:kmeansPlot}](img/kmeans.png){width=70%}
+
+En el cluster de la izquierda están concentrados los enlaces que su delta de tiempo de compartición entre ellos es el más bajo y con alto conteo.
+
+El el cluster de la derecha se encuentran los enlaces con un delta de tiempo alto y con bajo conteo.
+
+\autoref{fig:bloxplot} es un gráfico de Box Plot que permite observar la alta diferencia de medias de los 2 clusters.
 
 ![Clusters boxplot\label{fig:bloxplot}](img/boxplot.png){width=70%}
 
-Se observa claramente que los clusters están muy definidos con sus centroides muy separados entre ellos, lo cuál se puede comprobar con una prueba de diferencia de medias.
 
-En el cluster de color violeta están concentrados los enlaces que su delta de tiempo de compartición entre ellos es el más bajo y con una cantidad alta.
 
-El el cluster de color amarillo se encuentran los enlaces con un delta de tiempo alto y con poca cantidad.
-
-Esto nos permite observar que el cluster violeta pertenece a los enlaces con un posible comportamiento coordinado.
-
-Usando el centroide de este cluster obtenemos un t en base  t=2.84s en base logarítmica , lo que equivale a t=17s en base decimal.
+Tomando el centroide del cluster 0 obtenemos un tiempo en base logarítmica de 2.84 segundos, lo que equivale a 17 segundos en base decimal.
 
 Este tiempo de coordinación lo usamos como parámetro para los otros modelos que dan como resultado los enlaces que se comportan como el fenómeno que estamos analizando y un grafo con las comunidades de entidades que lo realizan.
 
+En \autoref{tbl:tiempoCoord} se observan las diferencias de tiempos de coordinación calculados con ambas metodologías en diferentes sets de datos.
 
-# Análisis de resultados
+| Set de datos  | Metodología Giglieto | Metodología Machine Learning |
+| ------------- | -------------------: | ---------------------------: |
+| Common Dreams |                   25 |                           16 |
+| Intercept     |                  241 |                           19 |
+| MintPress     |                   15 |                           18 |
+| Misión Verdad |                  606 |                              |
+| Teen Voge     |                 1200 |                           16 |
+| Telesur       |                   60 |                           17 |
+| The Nation    |                   65 |                              |
+| The Real News |                 1200 |                              |
+| Yes Magazine  |                 1200 |                              |
+
+Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
+
+# Análisis de resultados Telesur
 
 * Se encontraron 898 páginas o grupos diferenciados en 131 comunidades (clusters).
 

@@ -154,3 +154,6 @@ rawdata/
 #bib
 *.bib.sav
 *.bib.bak
+
+#joss
+paper.pdf
