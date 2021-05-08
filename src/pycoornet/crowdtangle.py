@@ -90,7 +90,7 @@ class CrowdTangle:
                     days = f"{remove_days} day"
                     endDate = startDate + pd.Timedelta(days)
                 else:
-                    endDate = 'now'
+                    endDate = None
 
                 url = urls.iloc[i, :].loc['url']
                 try:
