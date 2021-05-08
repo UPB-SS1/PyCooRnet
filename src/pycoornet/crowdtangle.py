@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 class CrowdTangle:
     """Descripción de la clase.
 
-        :param api_key: CrowdTangle API key.
-        :type api_key: string
+        api_key (str): CrowdTangle API key.
      """
 
     def __init__(self, api_key):
@@ -29,7 +28,7 @@ class CrowdTangle:
         """ Get the URLs shares from CrowdTangle from a list of URLs with publish datetime
 
         Args:
-            urls (dataframe): a dataframe with at least a column "url" containing the URLs, and a column "date" with their published date
+            urls (pandas.DataFrame): a dataframe with at least a column "url" containing the URLs, and a column "date" with their published date
             url_column (str, optional): name of the column (placed inside quote marks) where the URLs are stored. Defaults to 'url'.
             date_column (str, optional): name of the column (placed inside quote marks) where the date of the URLs are stored. Defaults to 'date'.
             platforms (tuple, optional): a tuple of platforms to search. You can specify only facebook to search on Facebook, or only instagram to
@@ -48,8 +47,7 @@ class CrowdTangle:
             SystemExit: [description]
 
         Returns:
-            [pandas.Dataframe]: [A pandas dataframe of posts that shared the URLs and a number of variables returned by the https://github.com/CrowdTangle/API/wiki/Links
-                    CrowdTangle API links endpoint and the original data set of news.
+            pandas.DataFrame: A pandas dataframe of posts that shared the URLs and a number of variables returned by the https://github.com/CrowdTangle/API/wiki/Links CrowdTangle API links endpoint and the original data set of news.
         """
 
         try:
