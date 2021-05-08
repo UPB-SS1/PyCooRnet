@@ -25,7 +25,7 @@ class CrowdTangle:
         self.api_key = api_key
 
     def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook', 'instagram'),
-                   nmax=500, sleep_time=20, clean_urls=False, save_ctapi_output=False, id_column=None, remove_days=None):
+                   nmax=1000, sleep_time=20, clean_urls=False, save_ctapi_output=False, id_column=None, remove_days=None):
         """ Get the URLs shares from CrowdTangle from a list of URLs with publish datetime
 
         Args:
@@ -86,7 +86,12 @@ class CrowdTangle:
                 # set date limits, endDate: one week after date_published
                 startDate = urls.iloc[i, :].loc['date']
                 #startDate = startDate.replace(microsecond=0)
-                endDate = startDate + pd.Timedelta('7 day')
+                if remove_days:
+                    days = f"{remove_days} day"
+                    endDate = startDate + pd.Timedelta(days)
+                else:
+                    endDate = None
+
                 url = urls.iloc[i, :].loc['url']
                 try:
                     # pycrowdtangle get links
@@ -152,8 +157,7 @@ class CrowdTangle:
                     if id_column:
                         df_full["id_column"] = urls.iloc[i, :].loc[id_column]
 
-
-                    # remove shares performed more than one week from first share
+                    # remove shares performed more than x days from first share
                     if remove_days:
                         # ex: '7 day'
                         days = f"{remove_days} day"
