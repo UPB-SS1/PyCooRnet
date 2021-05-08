@@ -11,13 +11,13 @@ authors:
   - name: Soto, Camilo
     orcid: 0000-0001-9831-6131
     affiliation: 1
-  - name: Zapata, Jose R
+  - name: Zapata, Jose R.
     orcid: 0000-0003-1484-5816
     affiliation: 1
 affiliations:
  - name: Universidad Pontificia Bolivariana
    index: 1
-date: 4 Mayo 2021
+date: 6 Mayo 2021
 bibliography: paper.bib
 ---
 
@@ -161,25 +161,25 @@ En \autoref{tbl:tiempoCoord} se observan las diferencias de tiempos de coordinac
 
 Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
-# Análisis de resultados Telesur
+# Análisis De Resultados Telesur
 
-* Se encontraron 898 páginas o grupos diferenciados en 131 comunidades (clusters).
+* Se encontraron 196 páginas o grupos con comportamiento coordinado para compartir enlaces diferenciados en 53 comunidades (clusters).
 
-* El 50% de las páginas o grupos que tienen un comportamiento coordinado, están agrupadas en 7 comunidades. \autoref{fig:clusters}.
+* El 50% de las páginas o grupos , están agrupadas en 6 comunidades. \autoref{fig:clusters}.
 
-![Comunidades.\label{fig:clusters}](img/clusters.png){width=60%}
+![Porcentaje de grupos y páginas que pertenece a cada comunidad\label{fig:clusters}](img/clusters_gephi.png){width=50%}
 
-* La página o grupo más influenciadores son:
+\autoref{tbl:tablaGrafo} Contiene el top 5 de las páginas y grupos de acuerdo a su fuerza en el grafo:
 
-| Página o grupo                                                                 | Fuerza | Suscriptores | Enlaces | Cluster |
-|--------------------------------------------------------------------------------|--------|--------------|---------|---------|
-| [1 Progressive Activists](https://www.facebook.com/940257989416472)            | 568    | 13.333       | 647     | 0       |
-| [The Progressive Party](https://www.facebook.com/742985139150026)              | 497    | 12.331       | 139     | 1       |
-| [Bernie Believers [Bernie Sanders]](https://www.facebook.com/1500083383618517) | 477    | 42.858       | 322     | 11      |
-| [Berniecrats](https://www.facebook.com/547808012048444)                        | 420    | 43.976       | 367     | 5       |
-| [America for Bernie Sanders 2020](https://www.facebook.com/208802505933373)    | 419    | 40.134       | 493     | 1       |
+| Página o grupo | Fuerza | Suscriptores | Enlaces Compartidos | Enlaces Coordinados |
+| -------------- | ------ | -----------: | ------------------: | ------------------: |
+| Grupo A        | 26     |       14.194 |                  27 |                   4 |
+| Grupo B        | 20     |        9.735 |                  98 |                   4 |
+| Grupo C        | 20     |        6.379 |                   6 |                   3 |
+| Grupo D        | 20     |        4.293 |                  71 |                   3 |
+| Grupo E        | 20     |        1.687 |                   9 |                   2 |
 
-
+Table: Grupos y Páginas de Facebook con más fuerza en el set de datos de TeleSur \label{tbl:tablaGrafo}
 
 
 # References
