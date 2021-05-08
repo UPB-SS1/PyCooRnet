@@ -14,7 +14,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pycoornet",
-    version="0.2.4",
+    version="0.2.5",
     description="Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -37,7 +37,7 @@ setup(
     test_suite="tests",
     install_requires=[
           'pandas>=1.0.5',
-          'PyCrowdTangle>=0.4.0',
+          'PyCrowdTangle>=0.5.0',
           'tqdm>=4.47.0',
           'networkx>=2.4',
           'python-louvain>=0.14',
