@@ -9,14 +9,24 @@ from .utils import Utils
 
 logger = logging.getLogger(__name__)
 
+
+
 class Shared:
-    """Shared class docsgring
+
+    """Coordinated Link Sharing Behavor (CLSB) detector.
+
+    Args:
+        crowdtangle_shares_df (pandas.DataFrame): the pandas dataframe of link posts resulting from the function
+                CrowdTangle shares
+    Returns:
+        2-elementos tuple containing
+        - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
+        - **q** (float): Percentile edge weight number of leeped repetedly coordinated link sharing.
     """
+    def __init__(self, crowdtangle_shares_df):
+        self.__crowdtangle_shares_df = crowdtangle_shares_df
 
-    # def __init__(self):
-    #     pass
-
-    def __estimate_coord_interval(self, crowtangle_shares_df, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
+    def estimate_coord_interval(self, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
         """Estimates a threshold in seconds that defines a coordinated link share. While it is common that multiple
         (pages/groups/account) entities share the same link, some tend to perform these actions in an unusually short period of time.
         Unusual is thus defined here as a function of the median co-share time difference. More specifically, the function ranks all
@@ -24,7 +34,6 @@ class Shared:
         The value returned is the median time in seconds spent by these URLs to cumulate the p\% (default 0.1) of their total shares.
 
         Args:
-            crowtangle_shares_df (pandas.Dataframe): the dataframe of link posts
 
             q (float, optional): controls the quantile of quickest URLs to be filtered. Defaults to 0.1.
 
@@ -37,9 +46,8 @@ class Shared:
 
         Returns:
             2-element tuple containing
-
             - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
-            - **time** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
+            - **coordination interval** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
         if 0<p<1 == False:
             logger.error('The p value must be between 0 and 1')
@@ -49,11 +57,12 @@ class Shared:
             logger.error('The q value must be between 0 and 1')
             raise Exception('The q value must be between 0 and 1')
 
+        crowdtangle_shares_df = self.__crowdtangle_shares_df.copy(deep=True)
 
         # keep original URLs only?
         if keep_ourl_only:
-            crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df['is_orig'] == True]
-            if crowtangle_shares_df.shape[0] < 2:
+            crowdtangle_shares_df = crowdtangle_shares_df[crowdtangle_shares_df['is_orig'] == True]
+            if crowdtangle_shares_df.shape[0] < 2:
                 logger.error("Can't execute with keep_ourl_only=True. Not enough posts matching original URLs")
                 raise Exception("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
             else:
@@ -61,31 +70,30 @@ class Shared:
 
         # clean urls?
         if clean_urls:
-            crowtangle_shares_df = Utils.clean_urls(crowtangle_shares_df, 'expanded')
+            crowdtangle_shares_df = Utils.clean_urls(crowdtangle_shares_df, 'expanded')
             logger.info('Coordination interval estimated on cleaned URLs')
 
 
-        crowtangle_shares_df = crowtangle_shares_df[['id', 'date', 'expanded']]
+        crowdtangle_shares_df = crowdtangle_shares_df[['id', 'date', 'expanded']]
 
         # count the number of diferent URLs
-        urls_df = pd.DataFrame(crowtangle_shares_df['expanded'].value_counts())
+        urls_df = pd.DataFrame(crowdtangle_shares_df['expanded'].value_counts())
         urls_df.reset_index(level=0, inplace=True)
         urls_df.columns = ['URL', 'ct_shares']
         # filter the URLS where the count is > 1
         urls_df = urls_df[urls_df['ct_shares'] >1]
 
-        # filter the crowtangle_shares_df that join with urls_df
-        crowtangle_shares_df = crowtangle_shares_df[crowtangle_shares_df.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
+        # filter the crowdtangle_shares_df that join with urls_df
+        crowdtangle_shares_df = crowdtangle_shares_df[crowdtangle_shares_df.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
 
         #metrics creation
-        crowtangle_shares_df['date'] = crowtangle_shares_df['date'].astype('datetime64[ns]')
-        ranked_shares_df = crowtangle_shares_df[['expanded', 'date']]
-        shares_gb = crowtangle_shares_df.groupby('expanded')
+        crowdtangle_shares_df['date'] = crowdtangle_shares_df['date'].astype('datetime64[ns]')
+        ranked_shares_df = crowdtangle_shares_df[['expanded', 'date']]
+        shares_gb = crowdtangle_shares_df.groupby('expanded')
         ranked_shares_df['ct_shares_count']=shares_gb['id'].transform('nunique')
         ranked_shares_df['first_share_date'] = shares_gb['date'].transform('min')
         ranked_shares_df['rank'] = shares_gb['date'].rank(ascending=True, method='first')
         ranked_shares_df['perc_of_shares'] = ranked_shares_df['rank']/ranked_shares_df['ct_shares_count']
-        #ranked_shares_df['perc_of_shares'] = shares_gb['date'].rank(ascending=True)
         ranked_shares_df['sec_from_first_share'] = (ranked_shares_df['date'] - ranked_shares_df['first_share_date']).dt.total_seconds()
         ranked_shares_df = ranked_shares_df.sort_values(by = 'expanded')
 
@@ -126,7 +134,7 @@ class Shared:
 
         return coord_interval
 
-    def __buid_graph(self, crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight = 90, timestamps = False):
+    def __buid_graph(self, crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight = 90, timestamps = False):
         logger.info("Bulding graph")
         coord_df = coordinated_shares_df[['account_url', 'url', 'share_date']].reset_index(drop=True)
         coord_graph = nx.from_pandas_edgelist(coord_df, 'account_url', 'url', create_using=nx.DiGraph())
@@ -148,19 +156,19 @@ class Shared:
         full_graph = bipartite.weighted_projected_graph(bipartite_graph, account_urls)
 
         #pandas helper dataframe to calcule graph node attribues
-        crowtangle_shares_df['account_name'] = crowtangle_shares_df['account_name'].astype(str)
-        crowtangle_shares_df['account_handle'] = crowtangle_shares_df['account_handle'].astype(str)
-        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_df['account_pageAdminTopCountry'].astype(str)
-        crowtangle_shares_gb = crowtangle_shares_df.groupby('account_url')
-        crowtangle_shares_df['name_changed']=(crowtangle_shares_gb['account_name'].transform("nunique"))>1
-        crowtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account_handle'].transform("nunique"))>1
-        crowtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account_pageAdminTopCountry'].transform("nunique"))>1
-        crowtangle_shares_df['account_name'] = crowtangle_shares_gb['account_name'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account_handle'] = crowtangle_shares_gb['account_handle'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_gb['account_pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
-        crowtangle_shares_df[['account_name','account_handle','account_pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
+        crowdtangle_shares_df['account_name'] = crowdtangle_shares_df['account_name'].astype(str)
+        crowdtangle_shares_df['account_handle'] = crowdtangle_shares_df['account_handle'].astype(str)
+        crowdtangle_shares_df['account_pageAdminTopCountry'] = crowdtangle_shares_df['account_pageAdminTopCountry'].astype(str)
+        crowtangle_shares_gb = crowdtangle_shares_df.groupby('account_url')
+        crowdtangle_shares_df['name_changed']=(crowtangle_shares_gb['account_name'].transform("nunique"))>1
+        crowdtangle_shares_df['handle_changed']=(crowtangle_shares_gb['account_handle'].transform("nunique"))>1
+        crowdtangle_shares_df['page_admin_top_country_changed']=(crowtangle_shares_gb['account_pageAdminTopCountry'].transform("nunique"))>1
+        crowdtangle_shares_df['account_name'] = crowtangle_shares_gb['account_name'].transform(lambda col: '|'.join(col.unique()))
+        crowdtangle_shares_df['account_handle'] = crowtangle_shares_gb['account_handle'].transform(lambda col: '|'.join(col.unique()))
+        crowdtangle_shares_df['account_pageAdminTopCountry'] = crowtangle_shares_gb['account_pageAdminTopCountry'].transform(lambda col: '|'.join(col.unique()))
+        crowdtangle_shares_df[['account_name','account_handle','account_pageAdminTopCountry','name_changed','handle_changed','page_admin_top_country_changed']]
 
-        crowtangle_shares_gb = crowtangle_shares_df.reset_index().groupby(['account_url'])
+        crowtangle_shares_gb = crowdtangle_shares_df.reset_index().groupby(['account_url'])
 
         account_info_df = crowtangle_shares_gb['index'].agg([('shares','count')])
         account_info_df = account_info_df.merge(pd.DataFrame(crowtangle_shares_gb['is_coordinated'].apply(lambda x: (x==True).sum())).rename(columns={'is_coordinated':'coord_shares'}), left_index=True, right_index=True)
@@ -249,21 +257,14 @@ class Shared:
         return highly_connected_graph, q
 
 
-    def coord_shares(self, dataframe, coordination_interval=None, parallel=False, percentile_edge_weight=90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
+    def coord_shares(self, coordination_interval=None, percentile_edge_weight=90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
         """Given a dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
         that performed coordinated link sharing behavior.
 
         Args:
-            dataframe (pandas.DataFrame): the pandas dataframe of link posts resulting from the function
-                CrowdTangle shares
-
             coordination_interval (int, optional): a threshold in seconds that defines a coordinated share.
                 Given a dataset of CrowdTangle shares, this threshold is automatically estimated. Alternatively
                 it can be manually passed to the function in seconds. Defaults to None.
-
-            parallel (bool, optional): enables parallel processing to speed up the process taking advantage
-                of multiple cores. The number of cores is automatically set to all the available cores minus one.
-                Defaults to False.
 
             percentile_edge_weight (float, optional): defines the percentile of the edge distribution to keep in order
                 to identify a network of coordinated entities. In other terms, this value determines the minimum number
@@ -278,14 +279,16 @@ class Shared:
                 Slow on large networks. Defaults to False.
 
         Returns:
-            2-element tuple containing
+            3-element tuple containing
 
             - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
             - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
+            - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
         """
         # estimate the coordination interval if not specified by the users
+        dataframe = self.__crowdtangle_shares_df.copy(deep=True)
         if coordination_interval == None:
-            coordination_interval = self.__estimate_coord_interval(dataframe, clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
+            coordination_interval = self.estimate_coord_interval(clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
             coordination_interval = coordination_interval[1]
 
         if coordination_interval == 0:
@@ -305,59 +308,51 @@ class Shared:
         urls_df = urls_df[urls_df['ct_shares'] >1]
         urls_df = urls_df.sort_values('URL')
 
-        crowtangle_shares_df = dataframe[dataframe.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
+        crowdtangle_shares_df = dataframe[dataframe.set_index('expanded').index.isin(urls_df.set_index('URL').index)]
 
-        if parallel:
-            pass
-        else:
-            data_list = []
-            urls_count = urls_df.shape[0]
-            i=0
+        data_list = []
+        urls_count = urls_df.shape[0]
+        i=0
 
-            with tqdm(total=urls_df.shape[0]) as pbar:
-                for index, row in urls_df.iterrows():
-                    pbar.update(1)
-                    i=i+1
-                    logger.debug(f"processing {i} of {urls_count}, url={row['URL']}")
-                    summary_df = crowtangle_shares_df[crowtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
-                    if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
-                        summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
-                        #summary_df['cut'] = pd.cut(summary_df['date'], int(coordination_interval))
-                        date_serie = summary_df['date'].astype('int64') // 10 ** 9
-                        max = date_serie.max()
-                        min = date_serie.min()
-                        div = (max-min)/coordination_interval + 1
-                        summary_df["cut"] = pd.cut(summary_df['date'],int(div)).apply(lambda x: x.left).astype('datetime64[ns]')
-                        cut_gb = summary_df.groupby('cut')
-                        summary_df.loc[:,'count'] = cut_gb['cut'].transform('count')
-                        #summary_df = summary_df[['cut', 'count']].copy(deep=True)
-                        # summary_df = summary_df.rename(columns = {'date': 'share_date'})
-                        summary_df.loc[:,'url'] = row['URL']
-                        summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
-                        summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
-                        summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
-                        summary_df = summary_df[summary_df['count']>1]
-                        if summary_df.shape[0]>1:
-                            summary_df = summary_df.loc[summary_df.astype(str).drop_duplicates().index]
-                            #summary_df['account_url'] = [account_url] * summary_df.shape[0]
-                            #summary_df['share_date'] = [dates] * summary_df.shape[0]
-                            data_list.append(summary_df)
+        with tqdm(total=urls_df.shape[0]) as pbar:
+            for index, row in urls_df.iterrows():
+                pbar.update(1)
+                i=i+1
+                logger.debug(f"processing {i} of {urls_count}, url={row['URL']}")
+                summary_df = crowdtangle_shares_df[crowdtangle_shares_df['expanded'] == row['URL']].copy(deep=True)
+                if summary_df.groupby('account_url')['account_url'].nunique().shape[0]>1:
+                    summary_df['date'] = summary_df['date'].astype('datetime64[ns]')
+                    date_serie = summary_df['date'].astype('int64') // 10 ** 9
+                    max = date_serie.max()
+                    min = date_serie.min()
+                    div = (max-min)/coordination_interval + 1
+                    summary_df["cut"] = pd.cut(summary_df['date'],int(div)).apply(lambda x: x.left).astype('datetime64[ns]')
+                    cut_gb = summary_df.groupby('cut')
+                    summary_df.loc[:,'count'] = cut_gb['cut'].transform('count')
+                    summary_df.loc[:,'url'] = row['URL']
+                    summary_df.loc[:,'account_url'] = cut_gb['account_url'].transform(lambda x: [x.tolist()]*len(x))
+                    summary_df.loc[:,'share_date'] = cut_gb['date'].transform(lambda x: [x.tolist()]*len(x))
+                    summary_df = summary_df[['cut', 'count', 'account_url','share_date', 'url']]
+                    summary_df = summary_df[summary_df['count']>1]
+                    if summary_df.shape[0]>1:
+                        summary_df = summary_df.loc[summary_df.astype(str).drop_duplicates().index]
+                        data_list.append(summary_df)
 
-            data_df = pd.concat(data_list)
-            if data_df.shape[0] == 0:
-                logger.info('there are not enough shares!')
-                return None
+        data_df = pd.concat(data_list)
+        if data_df.shape[0] == 0:
+            logger.info('there are not enough shares!')
+            return None
 
-            coordinated_shares_df = data_df.reset_index(drop=True).apply(pd.Series.explode).reset_index(drop=True)
+        coordinated_shares_df = data_df.reset_index(drop=True).apply(pd.Series.explode).reset_index(drop=True)
 
-            crowtangle_shares_df = crowtangle_shares_df.reset_index(drop=True)
-            crowtangle_shares_df.loc[:,'coord_expanded']=crowtangle_shares_df['expanded'].isin(coordinated_shares_df['url'])
-            crowtangle_shares_df.loc[:,'coord_date']=crowtangle_shares_df['date'].astype('datetime64[ns]').isin(coordinated_shares_df['share_date'])
-            crowtangle_shares_df.loc[:,'coord_account_url']=crowtangle_shares_df['account_url'].isin(coordinated_shares_df['account_url'])
+        crowdtangle_shares_df = crowdtangle_shares_df.reset_index(drop=True)
+        crowdtangle_shares_df.loc[:,'coord_expanded']=crowdtangle_shares_df['expanded'].isin(coordinated_shares_df['url'])
+        crowdtangle_shares_df.loc[:,'coord_date']=crowdtangle_shares_df['date'].astype('datetime64[ns]').isin(coordinated_shares_df['share_date'])
+        crowdtangle_shares_df.loc[:,'coord_account_url']=crowdtangle_shares_df['account_url'].isin(coordinated_shares_df['account_url'])
 
-            crowtangle_shares_df.loc[:,'is_coordinated'] = crowtangle_shares_df.apply(lambda x : True if (x['coord_expanded'] and x['coord_date'] and x['coord_account_url']) else False, axis=1)
-            crowtangle_shares_df.drop(['coord_expanded','coord_date', 'coord_account_url'], inplace = True, axis=1)
+        crowdtangle_shares_df.loc[:,'is_coordinated'] = crowdtangle_shares_df.apply(lambda x : True if (x['coord_expanded'] and x['coord_date'] and x['coord_account_url']) else False, axis=1)
+        crowdtangle_shares_df.drop(['coord_expanded','coord_date', 'coord_account_url'], inplace = True, axis=1)
 
-            highly_connected_graph, q =  self.__buid_graph(crowtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
+        highly_connected_graph, q =  self.__buid_graph(crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-        return crowtangle_shares_df, highly_connected_graph, q
+        return crowdtangle_shares_df, highly_connected_graph, q
