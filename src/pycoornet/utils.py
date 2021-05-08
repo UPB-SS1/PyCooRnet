@@ -9,7 +9,7 @@ class Utils:
 
         Args:
             dataframe (pandas.DataFrame): the pandas dataframe of link posts
-            url_column (string): the name of the dataframe column with the urls
+            url_column (str): the name of the dataframe column with the urls
 
         Returns:
             pandas.DataFrame: the dateframe with the cleaned urls

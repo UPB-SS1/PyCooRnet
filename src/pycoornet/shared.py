@@ -18,10 +18,6 @@ class Shared:
     Args:
         crowdtangle_shares_df (pandas.DataFrame): the pandas dataframe of link posts resulting from the function
                 CrowdTangle shares
-    Returns:
-        2-elementos tuple containing
-        - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
-        - **q** (float): Percentile edge weight number of leeped repetedly coordinated link sharing.
     """
     def __init__(self, crowdtangle_shares_df):
         self.__crowdtangle_shares_df = crowdtangle_shares_df
@@ -45,9 +41,10 @@ class Shared:
             keep_ourl_only (bool, optional): restrict the analysis to CrownTangle shares links matching the original URLs. Defaults to False.
 
         Returns:
-            2-element tuple containing
-            - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
-            - **coordination interval** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
+            (tuple): 2-element tuple containing
+
+                - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
+                - **coordination interval** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
         if 0<p<1 == False:
             logger.error('The p value must be between 0 and 1')
@@ -279,11 +276,11 @@ class Shared:
                 Slow on large networks. Defaults to False.
 
         Returns:
-            3-element tuple containing
+            (tuple): 3-element tuple containing
 
-            - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
-            - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
-            - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
+                - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
+                - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
+                - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
         """
         # estimate the coordination interval if not specified by the users
         dataframe = self.__crowdtangle_shares_df.copy(deep=True)
