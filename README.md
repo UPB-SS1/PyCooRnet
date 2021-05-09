@@ -1,6 +1,8 @@
 # PyCooRnet
 Using Python Given a set of URLs, this packages detects coordinated link sharing behavior on social media and outputs the network of entities that performed such behaviour.
 
+pip: [https://pypi.org/project/pycoornet/](https://pypi.org/project/pycoornet/)
+
 Project: https://upb-ss1.github.io/
 
 based on https://github.com/fabiogiglietto/CooRnet
