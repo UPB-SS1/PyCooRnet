@@ -23,11 +23,12 @@ class Shared:
         self.__crowdtangle_shares_df = crowdtangle_shares_df
 
     def estimate_coord_interval(self, q=0.1, p=0.5, clean_urls=False, keep_ourl_only=False):
-        """Estimates a threshold in seconds that defines a coordinated link share. While it is common that multiple
+        """
+        Estimates a threshold in seconds that defines a coordinated link share. While it is common that multiple
         (pages/groups/account) entities share the same link, some tend to perform these actions in an unusually short period of time.
         Unusual is thus defined here as a function of the median co-share time difference. More specifically, the function ranks all
-        co-shares by time-difference from first share and focuses on the behaviour of the quickest second share performing q\% (default 0.5) URLs.
-        The value returned is the median time in seconds spent by these URLs to cumulate the p\% (default 0.1) of their total shares.
+        co-shares by time-difference from first share and focuses on the behaviour of the quickest second share performing q% (default 0.5) URLs.
+        The value returned is the median time in seconds spent by these URLs to cumulate the p% (default 0.1) of their total shares.
 
         Args:
 
@@ -43,7 +44,7 @@ class Shared:
         Returns:
             (tuple): 2-element tuple containing
 
-                - **summary** (pandas.DataFrame): summary statistics of q\% quickest second share performing URLs.
+                - **summary** (pandas.DataFrame): summary statistics of q% quickest second share performing URLs.
                 - **coordination interval** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
         if 0<p<1 == False:
@@ -281,6 +282,7 @@ class Shared:
                 - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
                 - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
                 - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
+                - **coordination_interval** (int): coordination time in seconds
         """
         # estimate the coordination interval if not specified by the users
         dataframe = self.__crowdtangle_shares_df.copy(deep=True)
@@ -352,4 +354,4 @@ class Shared:
 
         highly_connected_graph, q =  self.__buid_graph(crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-        return crowdtangle_shares_df, highly_connected_graph, q
+        return crowdtangle_shares_df, highly_connected_graph, q, coordination_interval
