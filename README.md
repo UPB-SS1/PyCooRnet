@@ -43,7 +43,9 @@ def main():
     crowd_tangle = CrowdTangle("abc123def345")
     ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', sleep_time=30)
     shared = Shared(ct_df)
-    crowtangle_shares_df, shares_graph, q = shared.coord_shares(clean_urls=True)
+    crowtangle_shares_df, shares_graph, q, coordination_interval = shared.coord_shares(clean_urls=True)
+
+    print(f"Coordination Time = {coordination_interval}")
 
     #Build Gephi File
     for node in shares_graph.nodes(data=True):
