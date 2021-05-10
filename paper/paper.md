@@ -152,12 +152,12 @@ En \autoref{tbl:tiempoCoord} se observan las diferencias de tiempos de coordinac
 | Common Dreams |                   25 |                           16 |
 | Intercept     |                  241 |                           19 |
 | MintPress     |                   15 |                           18 |
-| Misión Verdad |                  606 |                              |
+| Misión Verdad |                  606 |                           26 |
 | Teen Voge     |                 1200 |                           16 |
 | Telesur       |                   60 |                           17 |
-| The Nation    |                   65 |                              |
-| The Real News |                 1200 |                              |
-| Yes Magazine  |                 1200 |                              |
+| The Nation    |                   65 |                           21 |
+| The Real News |                 1200 |                           18 |
+| Yes Magazine  |                 1200 |                         2249 |
 
 Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
