@@ -28,9 +28,8 @@ def test_crowdtangle(crowd_token, sample_source_df):
 
 def test_shared(sample_ct_df):
     shared = Shared(sample_ct_df)
-    crowtangle_shares_df, highly_connected_graph, q, coordination_interval = shared.coord_shares(clean_urls=True)
-    if (crowtangle_shares_df.shape[0] > 0 and
-        highly_connected_graph != None and q > 0 and coordination_interval>0):
+    crowtangle_shares_df, highly_connected_graph, q = shared.coord_shares(clean_urls=True)
+    if crowtangle_shares_df.shape[0] > 0 and highly_connected_graph != None:
         assert True
     else:
         assert False
