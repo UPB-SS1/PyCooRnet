@@ -354,4 +354,4 @@ class Shared:
 
         highly_connected_graph, q =  self.__buid_graph(crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
-        return crowdtangle_shares_df, highly_connected_graph, q, coordination_interval
+        return crowdtangle_shares_df, highly_connected_graph, q
