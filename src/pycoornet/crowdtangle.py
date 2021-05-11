@@ -177,7 +177,7 @@ class CrowdTangle:
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
 
                     if temp_saves and len(ct_shares_df) % temp_number == 0:
-                        ct_shares_df.to_feather(os.path.join(rawdata,f"temp_{num}.feather"))
+                        ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num}.feather"))
                         num+=1
                         ct_shares_df = pd.DataFrame()
                     #clean variables
@@ -215,7 +215,7 @@ class CrowdTangle:
             #create dir to save raw data
             Path("rawdata").mkdir(parents=True, exist_ok=True)
             # save raw dataframe
-            ct_shares_df.to_csv(os.path.join(rawdata,'ct_shares_df.csv', index=False))
+            ct_shares_df.to_csv(os.path.join("rawdata",'ct_shares_df.csv', index=False))
 
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
