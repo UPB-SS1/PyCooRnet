@@ -176,7 +176,7 @@ class CrowdTangle:
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
 
-                    if temp_saves and len(ct_shares_df) % temp_number == 0:
+                    if temp_saves and i % temp_number == 0:
                         ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num}.feather"))
                         num+=1
                         ct_shares_df = pd.DataFrame()
@@ -197,7 +197,7 @@ class CrowdTangle:
         #concatenate files if temp_saves == True
         if temp_saves and num > 1:
             if len(ct_shares_df) > 0:
-                ct_shares_df.to_feather(f"rawdata/temp_{num}.feather")
+                ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num}.feather"))
                 del ct_shares_df
             try:
                 ct_shares_df = pd.concat(map(pd.read_feather, glob.glob(os.path.join('rawdata', "*.feather"))))
