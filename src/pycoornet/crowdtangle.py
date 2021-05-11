@@ -90,6 +90,9 @@ class CrowdTangle:
                 Path("rawdata").mkdir(parents=True, exist_ok=True)
                 # for temporal file numbering
                 num =1
+                # if temp number is bigger than the number of urls
+                if temp_number > len(urls):
+                    temp_number = len(urls)//2
 
             # Progress bar tqdm
             for i in tqdm(range(len(urls))):
@@ -176,8 +179,9 @@ class CrowdTangle:
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
 
-                    if temp_saves and i % temp_number == 0:
-                        ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num}.feather"))
+                    if temp_saves and i+1 % temp_number == 0:
+                        num_str = (str(num)).zfill(4)
+                        ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num_str}.feather"))
                         num+=1
                         ct_shares_df = pd.DataFrame()
                     #clean variables
@@ -197,10 +201,12 @@ class CrowdTangle:
         #concatenate files if temp_saves == True
         if temp_saves and num > 1:
             if len(ct_shares_df) > 0:
-                ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num}.feather"))
+                num_str = (str(num)).zfill(4)
+                ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num_str}.feather"))
                 del ct_shares_df
             try:
-                ct_shares_df = pd.concat(map(pd.read_feather, glob.glob(os.path.join('rawdata', "*.feather"))))
+                logger.info("starting concatenation of all temp files")
+                ct_shares_df = pd.concat(map(pd.read_feather, sorted(glob.glob(os.path.join('rawdata', "*.feather")))))
             except:
                 raise SystemExit("\n temporal ct_shares concat failed")
 
