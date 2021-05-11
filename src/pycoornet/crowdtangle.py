@@ -4,6 +4,8 @@ import pandas as pd
 from pathlib import Path
 import PyCrowdTangle as pct
 import time
+import glob
+import os
 from tqdm import tqdm
 from .utils import Utils
 
@@ -24,7 +26,9 @@ class CrowdTangle:
         self.api_key = api_key
 
     def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook', 'instagram'),
-                   nmax=1000, sleep_time=20, clean_urls=False, save_ctapi_output=False, id_column=None, remove_days=None):
+                   nmax=1000, sleep_time=20, clean_urls=False, save_ctapi_output=False,
+                   temp_saves = False, temp_number = 1000,
+                   id_column=None, remove_days=None):
         """ Get the URLs shares from CrowdTangle from a list of URLs with publish datetime
 
         Args:
@@ -38,6 +42,8 @@ class CrowdTangle:
                                         depending on the assigned API rate limit. Defaults to 20.
             clean_urls (bool, optional): clean the URLs from tracking parameters. Defaults to False.
             save_ctapi_output (bool, optional): saves the original CT API output in rawdata/ folder. Defaults to False.
+            temp_saves (bool, optional): saves the partial concatenated dataframe to create a final dataframe at the end
+            temp_number (int, optional): number of downloaded urls to be saves as temporal, temp_saves has to be set to 'True'
             id_column(str,optional): name of the column wherre the id of each URL is stored.
             remove_days(int,optional): remove shares performed more than X days from first share
         Raises:
@@ -78,6 +84,12 @@ class CrowdTangle:
 
             # create empty dataframe
             ct_shares_df = pd.DataFrame()
+
+            if temp_saves:
+                #create dir to save temporal data
+                Path("rawdata").mkdir(parents=True, exist_ok=True)
+                # for temporal file numbering
+                num =1
 
             # Progress bar tqdm
             for i in tqdm(range(len(urls))):
@@ -164,6 +176,10 @@ class CrowdTangle:
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
 
+                    if temp_saves and len(ct_shares_df) % temp_number == 0:
+                        ct_shares_df.to_feather(os.path.join(rawdata,f"temp_{num}.feather"))
+                        num+=1
+                        ct_shares_df = pd.DataFrame()
                     #clean variables
                     del df
                     del df_full
@@ -173,9 +189,22 @@ class CrowdTangle:
                     print(f"error on {url}")
                 # wait time
                 time.sleep(sleep_time)
+
         except Exception as e:
             logger.exception(f"Exception {e.__class__} occurred.")
             raise e
+
+        #concatenate files if temp_saves == True
+        if temp_saves and num > 1:
+            if len(ct_shares_df) > 0:
+                ct_shares_df.to_feather(f"rawdata/temp_{num}.feather")
+                del ct_shares_df
+            try:
+                ct_shares_df = pd.concat(map(pd.read_feather, glob.glob(os.path.join('rawdata', "*.feather"))))
+            except:
+                raise SystemExit("\n temporal ct_shares concat failed")
+
+            print("Remember to delete the temporary files in /rawdata")
 
         if ct_shares_df.empty:
             logger.error("No ct_shares were found!")
@@ -186,7 +215,7 @@ class CrowdTangle:
             #create dir to save raw data
             Path("rawdata").mkdir(parents=True, exist_ok=True)
             # save raw dataframe
-            ct_shares_df.to_csv('rawdata/ct_shares_df.csv', index=False)
+            ct_shares_df.to_csv(os.path.join(rawdata,'ct_shares_df.csv', index=False))
 
         # remove possible inconsistent rows with entity URL equal "https://facebook.com/null"
         ct_shares_df = ct_shares_df[ct_shares_df['account_url'] != "https://facebook.com/null"]
@@ -210,5 +239,5 @@ class CrowdTangle:
         logger.info(f"Unique URL in Crowdtangle shares: {uni}")
         sum_accu = sum(ct_shares_df["account_verified"])
         logger.info(f"Links in CT shares matching original URLs: {sum_accu}")
-
+        ct_shares_df.reset_index()
         return ct_shares_df
