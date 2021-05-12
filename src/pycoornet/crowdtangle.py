@@ -135,7 +135,6 @@ class CrowdTangle:
                         if not data['result']['posts']:
                             print(f"Empty response on url: {url}")
                             logger.debug(f"Empty response on url: {url}")
-                            time.sleep(sleep_time)
                             continue
 
                         # convert json response to dataframe
