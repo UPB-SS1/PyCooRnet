@@ -179,7 +179,7 @@ class CrowdTangle:
                     # concat data results in dataframe
                     ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
 
-                    if temp_saves and i+1 % temp_number == 0:
+                    if temp_saves and (i+1) % temp_number == 0:
                         num_str = (str(num)).zfill(4)
                         ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num_str}.feather"))
                         num+=1
