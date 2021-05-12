@@ -7,6 +7,7 @@ import time
 import glob
 import os
 from tqdm import tqdm
+from ratelimiter import RateLimiter
 from .utils import Utils
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ class CrowdTangle:
         self.api_key = api_key
 
     def get_shares(self, urls, url_column='url', date_column='date', platforms=('facebook', 'instagram'),
-                   nmax=1000, sleep_time=20, clean_urls=False, save_ctapi_output=False,
+                   nmax=1000, max_calls = 2, clean_urls=False, save_ctapi_output=False,
                    temp_saves = False, temp_number = 1000,
                    id_column=None, remove_days=None):
         """ Get the URLs shares from CrowdTangle from a list of URLs with publish datetime
@@ -38,8 +39,8 @@ class CrowdTangle:
             platforms (tuple, optional): a tuple of platforms to search. You can specify only facebook to search on Facebook, or only instagram to
                                          search on Instagram. Defaults to ('facebook', 'instagram').
             nmax (int, optional): max number of results for query. Defaults to 100.
-            sleep_time (int, optional): pause between queries to respect API rate limits. Default to 20 secs, it can be lowered or increased
-                                        depending on the assigned API rate limit. Defaults to 20.
+            max_calls (int, optional): Max number of Api call per minute. It can be lowered or increased
+                                        depending on the assigned API rate limit. Defaults to 2.
             clean_urls (bool, optional): clean the URLs from tracking parameters. Defaults to False.
             save_ctapi_output (bool, optional): saves the original CT API output in rawdata/ folder. Defaults to False.
             temp_saves (bool, optional): saves the partial concatenated dataframe to create a final dataframe at the end
@@ -94,6 +95,9 @@ class CrowdTangle:
                 if temp_number > len(urls):
                     temp_number = len(urls)//2
 
+            #number of maximum calls to crowdtangle per minute
+            rate_limiter = RateLimiter(max_calls=max_calls, period=60)
+
             # Progress bar tqdm
             for i in tqdm(range(len(urls))):
                 # set date limits, endDate: one week after date_published
@@ -106,93 +110,97 @@ class CrowdTangle:
                     endDate = None
 
                 url = urls.iloc[i, :].loc['url']
-                try:
-                    # pycrowdtangle get links
-                    data = pct.ct_get_links(link=url, platforms=platforms,
-                                            start_date=startDate,
-                                            end_date=endDate,
-                                            include_history='true',
-                                            sortBy='date',
-                                            count=nmax,
-                                            api_token=self.api_key
-                                            )
-                    # if status is an error
-                    if data['status'] != 200:
-                        logger.exception(f"Unexpected http response code on url {url}")
-                        print(f"Unexpected http response code on url {url}")
-                        #next iteration
-                        continue
 
-                    #if data response is empty
-                    if not data['result']['posts']:
-                        print(f"Empty response on url: {url}")
-                        logger.debug(f"Empty response on url: {url}")
-                        time.sleep(sleep_time)
-                        continue
+                #add ratelimit restriction
+                with rate_limiter:
 
-                    # convert json response to dataframe
-                    df = pd.DataFrame(data['result']['posts'])
+                    try:
+                        # pycrowdtangle get links
+                        data = pct.ct_get_links(link=url, platforms=platforms,
+                                                start_date=startDate,
+                                                end_date=endDate,
+                                                include_history='true',
+                                                sortBy='date',
+                                                count=nmax,
+                                                api_token=self.api_key
+                                                )
+                        # if status is an error
+                        if data['status'] != 200:
+                            logger.exception(f"Unexpected http response code on url {url}")
+                            print(f"Unexpected http response code on url {url}")
+                            #next iteration
+                            continue
 
-                    #get pagination pending
+                        #if data response is empty
+                        if not data['result']['posts']:
+                            print(f"Empty response on url: {url}")
+                            logger.debug(f"Empty response on url: {url}")
+                            time.sleep(sleep_time)
+                            continue
 
-                    # Extract expanded info from column and convert to columns
-                    df['expanded'] = df['expandedLinks'].map(lambda x: x[0]).apply(pd.Series)['expanded']
+                        # convert json response to dataframe
+                        df = pd.DataFrame(data['result']['posts'])
 
-                    # Remove column
-                    df.drop(['expandedLinks'], axis=1, inplace = True)
+                        #get pagination pending
 
-                    # Extract account info from column and convert to columns
+                        # Extract expanded info from column and convert to columns
+                        df['expanded'] = df['expandedLinks'].map(lambda x: x[0]).apply(pd.Series)['expanded']
 
-                    # add prefix name to each key of the dictionary per row in 'account' column
-                    df['account'] = df['account'].apply(
-                        lambda x: {f'account_{k}': v for k, v in x.items()})
-                    # convert dictionary info in each row to columns
-                    account = df['account'].apply(pd.Series)
+                        # Remove column
+                        df.drop(['expandedLinks'], axis=1, inplace = True)
 
-                    df.drop(['account'], axis=1, inplace = True)
+                        # Extract account info from column and convert to columns
 
-                    # Expand statistics column
-                    statistics = df['statistics'].apply(pd.Series)
-                    actual = statistics['actual'].apply(lambda x: {f'statistics_actual_{k}': v for k, v in x.items()})
-                    actual = actual.apply(pd.Series)
-                    expected = statistics['expected'].apply(lambda x: {f'statistics_expected_{k}': v for k, v in x.items()})
-                    expected = expected.apply(pd.Series)
+                        # add prefix name to each key of the dictionary per row in 'account' column
+                        df['account'] = df['account'].apply(
+                            lambda x: {f'account_{k}': v for k, v in x.items()})
+                        # convert dictionary info in each row to columns
+                        account = df['account'].apply(pd.Series)
 
-                    #remove column
-                    df.drop(['statistics'], axis=1, inplace = True)
+                        df.drop(['account'], axis=1, inplace = True)
 
-                    #concat expanded account and statistics columns
-                    df_full = pd.concat([df, account, actual, expected], axis=1)
-                    df_full['date'] = pd.to_datetime(df_full['date'])
-                    df_full = df_full.set_index('date', drop=False)
+                        # Expand statistics column
+                        statistics = df['statistics'].apply(pd.Series)
+                        actual = statistics['actual'].apply(lambda x: {f'statistics_actual_{k}': v for k, v in x.items()})
+                        actual = actual.apply(pd.Series)
+                        expected = statistics['expected'].apply(lambda x: {f'statistics_expected_{k}': v for k, v in x.items()})
+                        expected = expected.apply(pd.Series)
 
-                    # if id column is specified
-                    if id_column:
-                        df_full["id_column"] = urls.iloc[i, :].loc[id_column]
+                        #remove column
+                        df.drop(['statistics'], axis=1, inplace = True)
 
-                    # remove shares performed more than x days from first share
-                    if remove_days:
-                        # ex: '7 day'
-                        days = f"{remove_days} day"
-                        df_full = df_full.loc[(df_full.index <= df_full.index.min()+ pd.Timedelta(days))]
+                        #concat expanded account and statistics columns
+                        df_full = pd.concat([df, account, actual, expected], axis=1)
+                        df_full['date'] = pd.to_datetime(df_full['date'])
+                        df_full = df_full.set_index('date', drop=False)
 
-                    # concat data results in dataframe
-                    ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
+                        # if id column is specified
+                        if id_column:
+                            df_full["id_column"] = urls.iloc[i, :].loc[id_column]
 
-                    if temp_saves and (i+1) % temp_number == 0:
-                        num_str = (str(num)).zfill(4)
-                        ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num_str}.feather"))
-                        num+=1
-                        ct_shares_df = pd.DataFrame()
-                    #clean variables
-                    del df
-                    del df_full
+                        # remove shares performed more than x days from first share
+                        if remove_days:
+                            # ex: '7 day'
+                            days = f"{remove_days} day"
+                            df_full = df_full.loc[(df_full.index <= df_full.index.min()+ pd.Timedelta(days))]
 
-                except Exception as e:
-                    logger.exception(f"error on {url}")
-                    print(f"error on {url}")
-                # wait time
-                time.sleep(sleep_time)
+                        # concat data results in dataframe
+                        ct_shares_df = ct_shares_df.append(df_full, ignore_index=True)
+
+                        if temp_saves and (i+1) % temp_number == 0:
+                            num_str = (str(num)).zfill(4)
+                            ct_shares_df.to_feather(os.path.join("rawdata",f"temp_{num_str}.feather"))
+                            num+=1
+                            ct_shares_df = pd.DataFrame()
+                        #clean variables
+                        del df
+                        del df_full
+
+                    except Exception as e:
+                        logger.exception(f"error on {url}")
+                        print(f"error on {url}")
+
+
 
         except Exception as e:
             logger.exception(f"Exception {e.__class__} occurred.")
