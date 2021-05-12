@@ -41,7 +41,7 @@ def main():
     links_df = pd.read_csv('samples/sample_source_links.csv')
     # Init CrowdTangle with api key
     crowd_tangle = CrowdTangle("abc123def345")
-    ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', sleep_time=30)
+    ct_df = crowd_tangle.get_shares(urls=links_df, url_column='clean_url', date_column='date',clean_urls=True, platforms='facebook', max_calls = 2)
     shared = Shared(ct_df)
     crowtangle_shares_df, shares_graph, q, coordination_interval = shared.coord_shares(clean_urls=True)
 
