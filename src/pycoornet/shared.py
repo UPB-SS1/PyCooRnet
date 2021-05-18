@@ -145,12 +145,15 @@ class Shared:
         urls = list(coordinated_shares_df['url'].unique())
 
         bipartite_graph = nx.Graph()
+        logger.debug('adding nodes')
         bipartite_graph.add_nodes_from(urls, bipartite=0)
         bipartite_graph.add_nodes_from(account_urls, bipartite=1)
+        logger.debug('Adding edges')
         for index, row in coord_df.iterrows():
             bipartite_graph.add_edge(row['account_url'], row['url'], share_date=row['share_date'])
 
         #Graph projection with account nodes
+        logger.debug('Projecting graph')
         full_graph = bipartite.weighted_projected_graph(bipartite_graph, account_urls)
 
         #pandas helper dataframe to calcule graph node attribues
@@ -325,6 +328,7 @@ class Shared:
                     max = date_serie.max()
                     min = date_serie.min()
                     div = (max-min)/coordination_interval + 1
+                    logger.debug(f"cutting row['URL'] in {div} parts")
                     summary_df["cut"] = pd.cut(summary_df['date'],int(div)).apply(lambda x: x.left).astype('datetime64[ns]')
                     cut_gb = summary_df.groupby('cut')
                     summary_df.loc[:,'count'] = cut_gb['cut'].transform('count')
@@ -355,3 +359,67 @@ class Shared:
         highly_connected_graph, q =  self.__buid_graph(crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
 
         return crowdtangle_shares_df, highly_connected_graph, q
+
+    def coord_shares_differential(self, coordination_interval=None, percentile_edge_weight=90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
+        dataframe = self.__crowdtangle_shares_df.copy(deep=True)
+        if coordination_interval == None:
+            coordination_interval = self.estimate_coord_interval(clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
+            coordination_interval = coordination_interval[1]
+
+        if coordination_interval == 0:
+            raise Exception("The coordination_interval value can't be 0. Please choose a value greater than zero or use coordination_interval=None to automatically calculate the interval")
+
+        if keep_ourl_only == True:
+            dataframe = dataframe[dataframe['is_orig'] == True]
+            if dataframe < 2:
+                raise Exception ("Can't execute with keep_ourl_only=TRUE. Not enough posts matching original URLs")
+
+        if clean_urls:
+            logger.debug("cleaning urls")
+            dataframe =  Utils.clean_urls(dataframe, 'expanded')
+
+        dataframe = dataframe.sort_values(['expanded', 'date'])
+        counts_serie = dataframe['expanded'].value_counts()
+
+        logger.debug('selecting urls with more than 1 share')
+        urls_serie = counts_serie.where(lambda x : x>1).dropna().index.to_list()
+        filtered_df =dataframe.query("expanded in @urls_serie").copy()
+        logger.debug("features")
+        del urls_serie
+        filtered_df.loc[:,'diff']=filtered_df.groupby('expanded')['date'].diff().dt.total_seconds().fillna(0)
+        filtered_df.loc[:,'valid_delta'] = filtered_df['diff']<= coordination_interval
+        filtered_df.loc[:,'valid_before'] = filtered_df.groupby('expanded')['valid_delta'].shift(-1)
+
+        logger.debug('selecting valid shares')
+        coord_df = filtered_df.copy(deep=True)
+        coord_df = coord_df.query('valid_delta | valid_before==True')
+
+        logger.debug('deleting first shares that not are coordinated')
+
+        # Delete the first share of every group if this is not coordinated
+        delete_df = coord_df.reset_index().groupby('expanded').first().query("valid_before == False")
+        coord_df = coord_df.drop(delete_df['index'])
+
+        coord_gb=coord_df.reset_index().groupby('expanded')
+
+        logger.debug('creating vectorized columns')
+        data_df = pd.DataFrame({'count':coord_gb['expanded'].count(), 'date':coord_gb['date'].apply(lambda x: x.tolist()), 'account_url': coord_gb['account_url'].apply(lambda x: x.tolist())})
+
+        if data_df.shape[0] == 0:
+            logger.info('there are not enough shares!')
+            return None
+
+        logger.debug('exploding')
+        coordinated_shares_df = data_df.reset_index().apply(pd.Series.explode)
+        logger.debug('joining data')
+        analyzed_df = filtered_df.set_index(['expanded','date', 'account_url']).join(coordinated_shares_df.drop_duplicates().set_index(['expanded','date', 'account_url'])).reset_index()
+        logger.debug('calculating coordinates')
+        analyzed_df.loc[:, 'is_coordinated'] = analyzed_df['count'].notna()
+        analyzed_df.drop(['count', 'diff', 'valid_delta', 'valid_before'], inplace = True, axis=1)
+
+        logger.debug('bulding graph')
+        highly_connected_graph, q =  self.__buid_graph(analyzed_df, coordinated_shares_df.rename(columns = {'expanded':'url', 'date':'share_date'}), percentile_edge_weight=percentile_edge_weight, timestamps=gtimestamps)
+
+
+        return analyzed_df, highly_connected_graph, q
+
