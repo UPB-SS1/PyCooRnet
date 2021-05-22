@@ -17,7 +17,7 @@ authors:
 affiliations:
  - name: Universidad Pontificia Bolivariana
    index: 1
-date: 6 Mayo 2021
+date: 22 Mayo 2021
 bibliography: paper.bib
 ---
 
@@ -28,7 +28,18 @@ Social Networks, Facebook, Graphs, Coordinated behavior, CLSB, Python, Clusterin
 Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, ahora en solamente en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCoorNet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por TeleSur English en la red social Facebook [@facebook] con el objetivo de detectar este comportamiento.
 
 # Motivaciones
-
+<table border="1">
+<tbody>
+<tr>
+<td>test 1</td>
+<td>test 2</td>
+</tr>
+<tr>
+<td>test 3</td>
+<td>test 4</td>
+</tr>
+</tbody>
+</table>
 
 # Objetivos
 
@@ -47,13 +58,13 @@ En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior
 
 Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacional, este es un método que funciona para periodos de tiempo de estudio cortos. Esta metodología supone que el fenómeno de coordinación se genera inmediatamente se comparte por primera vez el enlace, de lo contrario, los tiempos de coordinación se vuelven demasiado grandes y es susceptibles a los datos atípicos.
 
-Por lo tanto, en el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] se optó por utilizar técnicas de Aprendijade de Máquinas para detectar este tiempo de coordinación.
+Por lo tanto, en el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] se optó por utilizar técnicas de Aprendizaje de Máquinas para detectar este tiempo de coordinación.
 
-Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130], usando PyCrowdTangle [@pycrowdtangle] se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
+Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130] y procesándolas usando la librería de Python llamada PyCrowdTangle [@pycrowdtangle], se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
 Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008] sobre grafos detecta las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
 
-Usando herramientas de visualización de grafos como gephi [@ICWSM09154] podemos analizar el fenómeno en cuestión.
+Usando herramientas de visualización de grafos como gephi [@ICWSM09154] o Neo4j [@Neo4j2021], una plataforma de base de datos de grafos, podemos analizar el fenómeno en cuestión.
 
 ![Grafo de Coordinated Link Sharing de Telesur English\label{fig:telesur_graph}](img/telesur_nov.png){width=50%}
 
@@ -147,17 +158,33 @@ Este tiempo de coordinación lo usamos como parámetro para los otros modelos qu
 
 En \autoref{tbl:tiempoCoord} se observan las diferencias de tiempos de coordinación calculados con ambas metodologías en diferentes sets de datos.
 
-| Set de datos  | Metodología Giglieto | Metodología Machine Learning |
-| ------------- | -------------------: | ---------------------------: |
-| Common Dreams |                   25 |                           16 |
-| Intercept     |                  241 |                           19 |
-| MintPress     |                   15 |                           18 |
-| Misión Verdad |                  606 |                           26 |
-| Teen Voge     |                 1200 |                           16 |
-| Telesur       |                   60 |                           17 |
-| The Nation    |                   65 |                           21 |
-| The Real News |                 1200 |                           18 |
-| Yes Magazine  |                 1200 |                         2249 |
+(MC7D) = Método Coornet con 7 días por URL desde el que se publica por primera vez.
+
+(MC T) = Método Coonert sin restricción de tiempo de  todos los registros en que se comparten las URL.
+
+(MM 7D) = Método  Aprendizane de Máquinas con 7 días por URL desde el que se publica por primera vez.
+
+(MM T) = Método  Aprendizane de Máquinas con todos los registros en que se comparten las URL.
+
+
+
+| Set de datos       |  MC 7D |  MC T | MM 7D | MM T |
+| ------------------ | -----: | ----: | ----: | ---: |
+| Aporrea            |     82 |   101 |    11 |   10 |
+| Common Dreams      |  26299 | 23858 |    14 |   17 |
+| Democracy Now      |  12391 |  3502 |    17 |   16 |
+| Intercept          |  33835 | 28472 |    14 |   14 |
+| Jacobin mag        |  14322 |    17 |    11 |   11 |
+| Mintpress          |   2748 |   209 |    18 |   14 |
+| Newsweek           |   4376 |   616 |    16 |   14 |
+| R7                 |    208 |   169 |    15 |   14 |
+| sputniknews        |     94 |   102 |    12 |   12 |
+| TeleSur            |    309 |   212 |  1510 |   20 |
+| The Nation         |  34190 | 15967 |    18 |   18 |
+| The real news      |  12007 |  1388 |    18 |   16 |
+| Venezuela Análisis | 5592.0 |  2405 |   405 |   21 |
+| Voltairenet        |   8140 |   421 |    20 |   15 |
+| Wsws               |     12 |    17 |    13 |   11 |
 
 Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
