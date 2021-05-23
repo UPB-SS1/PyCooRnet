@@ -21,30 +21,26 @@ date: 22 Mayo 2021
 bibliography: paper.bib
 ---
 
-# Keywords
+# Palabras Claves
 Social Networks, Facebook, Graphs, Coordinated behavior, CLSB, Python, Clustering, Community Detection
 
-# Summary
-Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, ahora en solamente en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCoorNet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por TeleSur English en la red social Facebook [@facebook] con el objetivo de detectar este comportamiento.
+# Resumen
+Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, actualmente solo en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCooRnet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por distintos grupos en la red social Facebook [@facebook] que comparten la misma ideología, esto con el objetivo de detectar este comportamiento.
 
 # Motivaciones
-<table border="1">
-<tbody>
-<tr>
-<td>test 1</td>
-<td>test 2</td>
-</tr>
-<tr>
-<td>test 3</td>
-<td>test 4</td>
-</tr>
-</tbody>
-</table>
+
+En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior on Facebook in the Run-up of 2018 General Election and 2019 European Election in Italy" [@Giglietto2019], usando ingeniería de características, los autores proponen hallar el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada link y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
+
+Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacional, este es un método que funciona para periodos de tiempo de estudio cortos (en el código lo limitan a 7 días). Esta metodología supone que el fenómeno de coordinación se genera inmediatamente se comparte por primera vez el enlace, de lo contrario, los tiempos de coordinación se vuelven demasiado grandes y son susceptibles a los datos atípicos.
+
+En el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] tenemos como hipótesis que el tiempo de coordinación se puede dar en cualquier tiempo ***T*** independiente del primer momento en que se compartío un enlace, además que se puede repetir varias veces en la muestra poblacional.
 
 # Objetivos
 
+Usar técnicas de aprendizaje de máquinas para encontar un tiempo de coordinación en una muestra poblacional data, para usarlo como parámetro en un modelo que permita detectar la detección de comportamiento coordinado de intercambio de enlaces.
+
 # Tiempo De Coordinación
-El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo conviernte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
+El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo convierte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
 
 
 # Detección De El Comportamiento Coordinado De Intercambio De Enlaces
@@ -54,15 +50,9 @@ Como se visualiza en \autoref{fig:clsb_flow}, para detectar el comportamiento co
 
 # Caso De Estudio
 
-En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior on Facebook in the Run-up of 2018 General Election and 2019 European Election in Italy" [@Giglietto2019], usando ingeniería de características, los autores proponen calcular el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada link y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
+Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130] y procesándolas usando la librería de Python llamada PyCrowdTangle [@pycrowdtangle], se hace la extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle] la cual es una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
 
-Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacional, este es un método que funciona para periodos de tiempo de estudio cortos. Esta metodología supone que el fenómeno de coordinación se genera inmediatamente se comparte por primera vez el enlace, de lo contrario, los tiempos de coordinación se vuelven demasiado grandes y es susceptibles a los datos atípicos.
-
-Por lo tanto, en el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] se optó por utilizar técnicas de Aprendizaje de Máquinas para detectar este tiempo de coordinación.
-
-Tomando 4.077 URLs extraidas del Condor URLs data set [@Bakshy1130] y procesándolas usando la librería de Python llamada PyCrowdTangle [@pycrowdtangle], se hace una extracción de publicaciones de Facebook en CrowdTangle [@crowdtangle], una herramienta propiedad de Facebook que rastrea interacciones en contenido público de páginas y grupos de Facebook, perfiles verificados, cuentas de Instagram y subreddits. No incluye anuncios pagados a menos que esos anuncios comenzaran como publicaciones orgánicas y no pagas que posteriormente fueron "impulsadas" utilizando las herramientas publicitarias de Facebook. Tampoco incluye la actividad en cuentas privadas o publicaciones visibles solo para grupos específicos de seguidores, el resultado es total de 15.636 publicaciones válidas, las cuáles son análisadas por medio de PyCooRnet para detectar el comportamiento coordinado de intercambio de enlaces.
-
-Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de clusterización Louvain para el análisis de comunidades [@Blondel2008] sobre grafos detecta las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
+Realizando extracción, transformación y carga de los datos (ETL), se construye un set de datos el cual, por medio de técnicas de aprendizaje de máquinas y modelos no supervisados [@8713992] se obtiene un tiempo de coordinación que sirve como parámetro de entrada para un modelo que usa el  método de *clusterización Louvain* para el análisis de comunidades [@Blondel2008] sobre grafos detectando las páginas y grupos de Facebook que se comportan como una comunidad compartiendo enlaces entre sí.
 
 Usando herramientas de visualización de grafos como gephi [@ICWSM09154] o Neo4j [@Neo4j2021], una plataforma de base de datos de grafos, podemos analizar el fenómeno en cuestión.
 
@@ -70,10 +60,11 @@ Usando herramientas de visualización de grafos como gephi [@ICWSM09154] o Neo4j
 
 En \autoref{fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
-
 # Modelamiento
 
-Siguiento la metodología propuesta en Giglieto, Righetti y Marino [@Giglietto2020], se calcula el intervalo de coordinación tomando tomando para cada una de las URL (Localizador de Recursos Uniforme) [@BernersLee1994], la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
+## Metodología CooRnet
+
+Siguiento la metodología propuesta en Giglieto, Righetti y Marino [@Giglietto2020], se calcula el intervalo de coordinación tomando para cada una de las URL (Localizador de Recursos Uniforme) [@BernersLee1994], la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
 
 Datos los parámetros  *Q* (cuantil de las URL más rápidas que se filtrarán) y *P* (el porcentaje del total de publicaciones que se analizarán) se realizan las siguientes tranformaciones:
 
@@ -88,14 +79,14 @@ url['perc_of_shares'] = url[date].rank(ascending=True, method='average')
 ```
 ``url['rank']`` es usado para encontrar la segunda vez que se compartió esa URL, y así calcular cuál fué el tiempo inusual más rápido.
 
-``url['perc_of_shares']`` almacena el rango promedio dentro el grupo, ese valor se usa para filtrar con el pámetro *P*. [@pythonrank]
+``url['perc_of_shares']`` almacena el rango promedio dentro el grupo, ese valor se usa para filtrar con el parámetro *P*. [@pythonrank]
 
 
 Se calculan las publicaciones que compartieron estas URL en el percentil (parámetro dado por el usuario) con el intervalo de compartido más corto ``url['secondsFromFirstShare']``.
 
-Usando *Q* y *P* , se promedian los tiempos y se calcula el *el intervalo de coordinacion*.
+Usando *Q* y *P* , se promedian los tiempos y se calcula  *el intervalo de coordinación.
 
-Tomando este este valor se filtran las URLs (independientemente de quien realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
+Tomando este este valor se filtran las URLs (independientemente de quién realiza la publicación) para tomar las URL que se compartieron dentro este umbral.
 
 |      | Seg. desde el primer share |
 |------|---------------------------:|
@@ -117,13 +108,15 @@ Table: Descriptores de los segudos desde el primer share \label{tbl:firtShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
-En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es demasiado alto y se gran cantidad de datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear entre diferentes quantiles y submuestras poblacionales. Este proceso iterativo necesita una alta carga computacional
+En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es muy alto y con gran cantidad de datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear entre diferentes quantiles y submuestras poblacionales. Este proceso iterativo necesita una alta carga computacional.
+
+## Metodología con Aprendizaje de Máquinas
 
 En el proyecto, se decidió utilizar un modelo no supervisado para calcular el tiempo de coordinación.
 
-El set de datos se agrupó por enlace y se organizó por fecha y hora en que se compartío, par aluego calcular el delta entre cada uno de los enlaces con el fin de crear un histograma de estos deltas, independiente del enlace. Con esto eliminamos el posible sesgo de tiempo que se genera si el tiempo entre que se comparte el primer enlace y el momento en que se comparte "viralmente" es alto.
+El set de datos se agrupó por enlace y se organizó por fecha y hora en que se compartío, para luego calcular el delta entre cada uno de los enlaces con el fin de crear un histograma de estos deltas, independiente del enlace. Con esto eliminamos el posible sesgo de tiempo que se genera si el tiempo entre que se comparte el primer enlace y el momento en que se comparte "viralmente" es alto.
 
-Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acercar su comportamiento a una distribución normal. En \autoref{fig:histograma} visualizamos su histograma.
+Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acercar su comportamiento a una distribución normal. En \autoref{fig:histograma} visualizamos el histograma de uno de las muestras poblacionales estudiadas.
 
 ![Histograma\label{fig:histograma}](img/hist1.png){width=70%}
 
@@ -158,37 +151,52 @@ Este tiempo de coordinación lo usamos como parámetro para los otros modelos qu
 
 En \autoref{tbl:tiempoCoord} se observan las diferencias de tiempos de coordinación calculados con ambas metodologías en diferentes sets de datos.
 
-(MC7D) = Método Coornet con 7 días por URL desde el que se publica por primera vez.
+Registros 7D: Cantidad de regitros del set de datos con 7 días por URL desde el que se publica por primera vez.
 
-(MC T) = Método Coonert sin restricción de tiempo de  todos los registros en que se comparten las URL.
+Regristros T: Cantidad de registros del set de datos sin restricción de tiempo de  todos los registros en que se comparten las URL.
+
+(MC 7D) = Método CooRnet con 7 días por URL desde el que se publica por primera vez.
+
+(MC T) = Método CooRnert sin restricción de tiempo de  todos los registros en que se comparten las URL.
 
 (MM 7D) = Método  Aprendizane de Máquinas con 7 días por URL desde el que se publica por primera vez.
 
 (MM T) = Método  Aprendizane de Máquinas con todos los registros en que se comparten las URL.
 
-
-
-| Set de datos       |  MC 7D |  MC T | MM 7D | MM T |
-| ------------------ | -----: | ----: | ----: | ---: |
-| Aporrea            |     82 |   101 |    11 |   10 |
-| Common Dreams      |  26299 | 23858 |    14 |   17 |
-| Democracy Now      |  12391 |  3502 |    17 |   16 |
-| Intercept          |  33835 | 28472 |    14 |   14 |
-| Jacobin mag        |  14322 |    17 |    11 |   11 |
-| Mintpress          |   2748 |   209 |    18 |   14 |
-| Newsweek           |   4376 |   616 |    16 |   14 |
-| R7                 |    208 |   169 |    15 |   14 |
-| sputniknews        |     94 |   102 |    12 |   12 |
-| TeleSur            |    309 |   212 |  1510 |   20 |
-| The Nation         |  34190 | 15967 |    18 |   18 |
-| The real news      |  12007 |  1388 |    18 |   16 |
-| Venezuela Análisis | 5592.0 |  2405 |   405 |   21 |
-| Voltairenet        |   8140 |   421 |    20 |   15 |
-| Wsws               |     12 |    17 |    13 |   11 |
+| Set de datos | Registros 7D | MC 7D (s) | MM 7D (s) | Registros T | MC T (s) | MM T (s) |
+| ------------ | -----------: | --------: | --------: | ----------: | -------: | -------: |
+| Enlaces A    |      113.355 |        95 |        20 |     164.102 |   28.472 |       14 |
+| Enlaces B    |       30.548 |        15 |        21 |      59.296 |      209 |       14 |
+| Enlaces C    |       20.745 |     1.200 |         3 |      50.286 |  104.541 |       20 |
+| Enlaces D    |       16.046 |        67 |        27 |      18.962 |      212 |       20 |
+| Enlaces E    |       49.716 |        88 |        21 |      81.659 |   15.967 |       18 |
+| Enlaces F    |       52.153 |        31 |         6 |      11.798 |    1.388 |       16 |
+| Enlaces G    |      104.327 |        27 |         8 |     172.901 |    2.405 |       21 |
 
 Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
-# Análisis De Resultados Telesur
+# Análisis De Resultados
+
+## Intervalo de coordinación y modelo de clasificación.
+Si de los dataset ***Enlaces A***, tomamos un URL, la organizamos temporalmente y se hace un gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el dataset de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
+
+En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor compartamiento entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fué 2019-11-26 00:21:41
+
+![Coordinación del set de datos "Enlaces A - 7 días"., para una URL.\label{fig:coor7d}](img/coordinated.png)
+
+![Serie de tiempo de set de datos "Enlaces A - 7 días"., para una URL.\label{fig:coor7d_ts}](img/coordinated_ts.png)
+
+En \autoref{fig:coord_unlimited} y  \autoref{fig:coord_unlimited_ts} se observa que al inicio el enlace fue compartido coordinadamente, pero el fenómeno es cíclico, dándose en espacios temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor  entre el id 55(2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fue 2019-11-26 00:21:41.
+
+![Coordinación del set de datos "Enlaces A - sin límite de tiempo"., para una URL.\label{fig:coord_unlimited}](img/coordinated_no_limit.png)
+
+![Serie de tiempo de set de datos "Enlaces A - sin límite de tiempo"., para una URL.\label{fig:coord_unlimited_ts}](img/coordinated_no_limit_ts.png)
+
+Igualmente si se comparan \autoref{fig:coor7d}  con \autoref{fig:coord_unlimited} y \autoref{fig:coor7d_ts} con \autoref{fig:coord_unlimited_ts}, se observa que a pesar de la diferencia de tiempos de coordinación, el fenómeno de coordinación es casi igual para ambos.
+
+# Grafo
+
+Como se  anteriormente, el modelo también entrega como resultado un grafo que permite clasificar el comportamiento coordina por comunidades. Analizando el dataset ***Enlaces A***.
 
 * Se encontraron 196 páginas o grupos con comportamiento coordinado para compartir enlaces diferenciados en 53 comunidades (clusters).
 
@@ -206,7 +214,7 @@ Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 | Grupo D        | 20     |        4.293 |                  71 |                   3 |
 | Grupo E        | 20     |        1.687 |                   9 |                   2 |
 
-Table: Grupos y Páginas de Facebook con más fuerza en el set de datos de TeleSur \label{tbl:tablaGrafo}
+Table: Grupos y Páginas de Facebook con más fuerza en el set de datos  ***Enlaces A*** \label{tbl:tablaGrafo}
 
 
 # References
