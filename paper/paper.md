@@ -37,7 +37,7 @@ En el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana
 
 # Objetivos
 
-Usar técnicas de aprendizaje de máquinas para encontar un tiempo de coordinación en una muestra poblacional data, para usarlo como parámetro en un modelo que permita detectar la detección de comportamiento coordinado de intercambio de enlaces.
+Usar técnicas de aprendizaje de máquinas para encontar un tiempo de coordinación en una muestra poblacional data, para usarlo como parámetro en un modelo que permita la detección de comportamiento coordinado de intercambio de enlaces.
 
 # Tiempo De Coordinación
 El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo convierte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
@@ -108,7 +108,7 @@ Table: Descriptores de los segudos desde el primer share \label{tbl:firtShare}
 
 ![Box Plot\label{fig:bloxplot1}](img/bloxplot1.png){width=70%}
 
-En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es muy alto y con gran cantidad de datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterear entre diferentes quantiles y submuestras poblacionales. Este proceso iterativo necesita una alta carga computacional.
+En \autoref{tbl:firtShare} se observa que los tiempos en los diferentes percentiles es muy alto y con gran cantidad de datos atípicos  \autoref{fig:bloxplot1}. Con esta metodología debe empezar a iterar entre diferentes quantiles y submuestras poblacionales. Este proceso iterativo necesita una alta carga computacional.
 
 ## Metodología con Aprendizaje de Máquinas
 
@@ -123,7 +123,7 @@ Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acerca
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
 
-Para escoger el valor K adecuado se usan el análisis de *suma de error al cuadrado* (SSE)  \autoref{fig:sse} y  *silueta*  (distancia de separación entre los clusters. Nos indica como está separado cada puento de un cluster a los clusters vecinos) \autoref{fig:silhouette} .
+Para escoger el valor K adecuado se usan el análisis de *suma de error al cuadrado* (SSE)  \autoref{fig:sse} y  *silueta*  (distancia de separación entre los clusters. Nos indica como está separado cada punto de un cluster a los clusters vecinos) \autoref{fig:silhouette} .
 
 ![SSE\label{fig:sse}](img/sse.png){width=70%}
 
@@ -178,15 +178,15 @@ Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 # Análisis De Resultados
 
 ## Intervalo de coordinación y modelo de clasificación.
-Si de los dataset ***Enlaces A***, tomamos un URL, la organizamos temporalmente y se hace un gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el dataset de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
+Si de los dataset ***Enlaces A***, tomamos un URL, la organizamos temporalmente y se hace una gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el dataset de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
 
-En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor compartamiento entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fué 2019-11-26 00:21:41
+En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor comportamiento entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fué 2019-11-26 00:21:41
 
 ![Coordinación del set de datos "Enlaces A - 7 días"., para una URL.\label{fig:coor7d}](img/coordinated.png)
 
 ![Serie de tiempo de set de datos "Enlaces A - 7 días"., para una URL.\label{fig:coor7d_ts}](img/coordinated_ts.png)
 
-En \autoref{fig:coord_unlimited} y  \autoref{fig:coord_unlimited_ts} se observa que al inicio el enlace fue compartido coordinadamente, pero el fenómeno es cíclico, dándose en espacios temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor  entre el id 55(2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fue 2019-11-26 00:21:41.
+En \autoref{fig:coord_unlimited} y  \autoref{fig:coord_unlimited_ts} se observa que al inicio el enlace fue compartido coordinadamente, pero el fenómeno es cíclico, dándose en espacios temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor comportamiento  entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fue 2019-11-26 00:21:41.
 
 ![Coordinación del set de datos "Enlaces A - sin límite de tiempo"., para una URL.\label{fig:coord_unlimited}](img/coordinated_no_limit.png)
 
@@ -196,25 +196,52 @@ Igualmente si se comparan \autoref{fig:coor7d}  con \autoref{fig:coord_unlimited
 
 # Grafo
 
-Como se  anteriormente, el modelo también entrega como resultado un grafo que permite clasificar el comportamiento coordina por comunidades. Analizando el dataset ***Enlaces A***.
+El modelo de aprendizaje de máquina también entrega como resultado un grafo que permite clasificar el comportamiento coordinado por comunidades. Analizando el dataset ***Enlaces A***.
 
 * Se encontraron 196 páginas o grupos con comportamiento coordinado para compartir enlaces diferenciados en 53 comunidades (clusters).
 
 * El 50% de las páginas o grupos , están agrupadas en 6 comunidades. \autoref{fig:clusters}.
 
-![Porcentaje de grupos y páginas que pertenece a cada comunidad\label{fig:clusters}](img/clusters_gephi.png){width=50%}
+![Porcentaje de grupos y páginas que pertenece a cada comunidad.\label{fig:clusters}](img/clusters.png){width=50%}
 
 \autoref{tbl:tablaGrafo} Contiene el top 5 de las páginas y grupos de acuerdo a su fuerza en el grafo:
 
 | Página o grupo | Fuerza | Suscriptores | Enlaces Compartidos | Enlaces Coordinados |
-| -------------- | ------ | -----------: | ------------------: | ------------------: |
-| Grupo A        | 26     |       14.194 |                  27 |                   4 |
-| Grupo B        | 20     |        9.735 |                  98 |                   4 |
-| Grupo C        | 20     |        6.379 |                   6 |                   3 |
-| Grupo D        | 20     |        4.293 |                  71 |                   3 |
-| Grupo E        | 20     |        1.687 |                   9 |                   2 |
+| -------------- | -----: | -----------: | ------------------: | ------------------: |
+| Grupo A        |     26 |       14.194 |                  27 |                   4 |
+| Grupo B        |     20 |        9.735 |                  98 |                   4 |
+| Grupo C        |     20 |        6.379 |                   6 |                   3 |
+| Grupo D        |     20 |        4.293 |                  71 |                   3 |
+| Grupo E        |     20 |        1.687 |                   9 |                   2 |
 
 Table: Grupos y Páginas de Facebook con más fuerza en el set de datos  ***Enlaces A*** \label{tbl:tablaGrafo}
 
+En el ágrafo de \autoref{fig:clusters_graph} se observa como los grupos páginas (círculos) de una misma comunidad (color) comparten enlaces entre ellos y como algunos de ellos interactúan con otras comunidades y su fuerza (tamaño del círculo).
+
+![Grafo de comunidades con comportamiento coordinado del set de datos ***Enlaces A***.\label{fig:clusters_graph}](img/dataset_graph.png)
+
+
+
+# Conclusiones
+
+Es posible usar metodologías de aprendijaze de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió el enlace y no es afectado por periodos de tiempo mayores a 7 días.
+
+El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo: 
+
+$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$  
+
+Se analiza cada una de las ***n*** particiones para definir si un enlace es coordinado o no de acuerdo a la cantidad de veces que aparece el  enlace en estas, generando un posible problema de muestreo, además que en grandes sets de datos la complejidad del algorimo es :
+
+ $$(q * v)^n$$
+
+***q*** es el número de enlaces, ***v*** las veces que fue compartido  y ***n*** el número de particiones.
+
+En el modelo propuesto por el proyecto agrupa cada enlace y calcula un delta entre ellos ordenados por fecha como variable para el modelo, lo cuál detecta el fenómeno de análisis independientemente del momento en que ocurre. La complejidad del algoritmo es:
+
+$$q * v$$
+
+***q*** es el número de enlaces, ***v*** las veces que fue compartido.
+
+Si se utiliza una herramienta de visualización el grafo resultante del modelo, generalmente los nodos que pertenecen a la misma comunidad están juntos, ademas si se  usa la fuerza como variable para el radio del nodo, los nodos mas grandes usualmente son los grupos y/o páginas que que comparten enlaces entre distintas comunidades.
 
 # References
