@@ -224,7 +224,7 @@ En el ágrafo de \autoref{fig:clusters_graph} se observa como los grupos página
 
 # Conclusiones
 
-Es posible usar metodologías de aprendijaze de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió el enlace y no es afectado por periodos de tiempo mayores a 7 días.
+Es posible usar metodologías de aprendizaje de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió el enlace y no es afectado por periodos de tiempo mayores a 7 días.
 
 El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo: 
 
