@@ -200,7 +200,7 @@ $$q * v$$
 
 Usando el modelo propuesto con los 2 sets de datos ***Enlaces A***; del resultado se toma un URL, se organiza temporalmente y se hace una gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el set de datos de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
 
-En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor comportamiento entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fué 2019-11-26 00:21:41
+En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor comportamiento entre el id 55 (2019-11-26 18:37:57) y 70 (2019-11-26 18:38:58) cuando la primera fecha en que se compartió fué 2019-11-26 01:43:59
 
 ![Coordinación del set de datos "Enlaces A - 7 días"., para una URL.\label{fig:coor7d}](img/coordinated.png)
 
@@ -236,7 +236,7 @@ El modelo de aprendizaje de máquina también entrega como resultado un grafo qu
 
 Table: Grupos y Páginas de Facebook con más fuerza en el set de datos  ***Enlaces A*** \label{tbl:tablaGrafo}
 
-En el ágrafo de \autoref{fig:clusters_graph} se observa como los grupos páginas (círculos) de una misma comunidad (color) comparten enlaces entre ellos y como algunos de ellos interactúan con otras comunidades y su fuerza (tamaño del círculo).
+En el grafo de \autoref{fig:clusters_graph} se observa como los grupos páginas (círculos) de una misma comunidad (color) comparten enlaces entre ellos y como algunos de ellos interactúan con otras comunidades y su fuerza (tamaño del círculo). La distribución que se usó fue Force Atlas [@ICWSM09154].
 
 ![Grafo de comunidades con comportamiento coordinado del set de datos ***Enlaces A***.\label{fig:clusters_graph}](img/dataset_graph.png)
 
@@ -244,10 +244,12 @@ En el ágrafo de \autoref{fig:clusters_graph} se observa como los grupos página
 
 # Conclusiones
 
-Es posible usar metodologías de aprendizaje de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió el enlace y no es afectado por periodos de tiempo mayores a 7 días.
+El metodo de CooRnet al hacer divisiones fijas tiene un problema de muestro donde se pueden perden algunos eventos donde se comparte de forma coordinada.
 
+Es posible usar metodologías de aprendizaje de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió por primera vez el enlace y no es afectado por periodos de tiempo mayores a 7 días.
 
+Si se utiliza una herramienta de visualización el grafo resultante del modelo, usando una distribución Force Atlas generalmente los nodos que pertenecen a la misma comunidad están juntos, ademas si se  usa la fuerza como variable para el radio del nodo, los nodos mas grandes usualmente son los grupos y/o páginas que que comparten enlaces entre distintas comunidades.
 
-Si se utiliza una herramienta de visualización el grafo resultante del modelo, generalmente los nodos que pertenecen a la misma comunidad están juntos, ademas si se  usa la fuerza como variable para el radio del nodo, los nodos mas grandes usualmente son los grupos y/o páginas que que comparten enlaces entre distintas comunidades.
+Los resultados de estos modelos pueden usarme pare etiquetar otros set de datos que para entrenar modelos que extraigan el texto de los enlaces y usar técnicas de Procesamiento de Lenguaje Natural (NLP) y tomar decisiones a partir de dicho contenido, por ejemplo si el texto es considerado positivo o no, si está favorenciendo una ideología política, regiosa, cultural, etc.
 
 # References
