@@ -123,7 +123,10 @@ Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acerca
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
 
-Para escoger el valor K adecuado se usan el análisis de *suma de error al cuadrado* (SSE)  \autoref{fig:sse} y  *silueta*  (distancia de separación entre los clusters. Nos indica como está separado cada punto de un cluster a los clusters vecinos) \autoref{fig:silhouette} .
+Para escoger el valor K adecuado se usan el análisis de 
+
++ ***Suma de error al cuadrado (SSE)***  \autoref{fig:sse} entre los puntos de datos y los centroides de sus clusters asignados, Se elige el valor k en el lugar donde SSE comienza a aplanarse y forma un codo. 
++ ***Silueta  (distancia de separación entre los clusters)***. Nos indica como está separado cada punto de un cluster a los clusters vecinos) \autoref{fig:silhouette} . Esta métrica toma valores en el intervalo [-1, 1]. Se buscan los coeficientes más grandes posibles y cercanos a 1.
 
 ![SSE\label{fig:sse}](img/sse.png){width=70%}
 
@@ -145,7 +148,7 @@ El el cluster de la derecha se encuentran los enlaces con un delta de tiempo alt
 
 
 
-Tomando el centroide del cluster 0 obtenemos un tiempo en base logarítmica de 2.84 segundos, lo que equivale a 17 segundos en base decimal.
+Tomando el centroide del cluster 0 obtenemos un tiempo en base logarítmica de 2.84 segundos, lo que equivale a 17 segundos en base lineal.
 
 Este tiempo de coordinación lo usamos como parámetro para los otros modelos que dan como resultado los enlaces que se comportan como el fenómeno que estamos analizando y un grafo con las comunidades de entidades que lo realizan.
 
@@ -178,7 +181,24 @@ Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 # Análisis De Resultados
 
 ## Intervalo de coordinación y modelo de clasificación.
-Si de los dataset ***Enlaces A***, tomamos un URL, la organizamos temporalmente y se hace una gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el dataset de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
+
+El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo: 
+
+$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$  
+
+Se analiza cada una de las ***n*** particiones para definir si un enlace es coordinado o no de acuerdo a la cantidad de veces que aparece el  enlace en estas, generando un posible problema de muestreo, además que en grandes sets de datos la complejidad del algorimo es :
+
+ $$(q * v)^n$$
+
+***q*** es el número de enlaces, ***v*** las veces que fue compartido  y ***n*** el número de particiones.
+
+En el modelo propuesto por el proyecto agrupa cada enlace y calcula un delta entre ellos ordenados por fecha como variable para el modelo, lo cuál detecta el fenómeno de análisis independientemente del momento en que ocurre. La complejidad del algoritmo es:
+
+$$q * v$$
+
+***q*** es el número de enlaces, ***v*** las veces que fue compartido.
+
+Usando el modelo propuesto con los 2 sets de datos ***Enlaces A***; del resultado se toma un URL, se organiza temporalmente y se hace una gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el set de datos de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
 
 En \autoref{fig:coor7d} y  \autoref{fig:coor7d_ts} se observa que al inicio el enlace fué compartido coordinadamente, pero el fenómeno es cíclico, dándose en espaciós temporales distintos y lejos de la primera vez que se compartió, teniendo su mayor comportamiento entre el id 55 (2019-11-26 18:37:57) y 71 (2019-11-26 18:39:01) cuando la primera fecha en que se compartió fué 2019-11-26 00:21:41
 
@@ -226,21 +246,7 @@ En el ágrafo de \autoref{fig:clusters_graph} se observa como los grupos página
 
 Es posible usar metodologías de aprendizaje de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió el enlace y no es afectado por periodos de tiempo mayores a 7 días.
 
-El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo: 
 
-$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$  
-
-Se analiza cada una de las ***n*** particiones para definir si un enlace es coordinado o no de acuerdo a la cantidad de veces que aparece el  enlace en estas, generando un posible problema de muestreo, además que en grandes sets de datos la complejidad del algorimo es :
-
- $$(q * v)^n$$
-
-***q*** es el número de enlaces, ***v*** las veces que fue compartido  y ***n*** el número de particiones.
-
-En el modelo propuesto por el proyecto agrupa cada enlace y calcula un delta entre ellos ordenados por fecha como variable para el modelo, lo cuál detecta el fenómeno de análisis independientemente del momento en que ocurre. La complejidad del algoritmo es:
-
-$$q * v$$
-
-***q*** es el número de enlaces, ***v*** las veces que fue compartido.
 
 Si se utiliza una herramienta de visualización el grafo resultante del modelo, generalmente los nodos que pertenecen a la misma comunidad están juntos, ademas si se  usa la fuerza como variable para el radio del nodo, los nodos mas grandes usualmente son los grupos y/o páginas que que comparten enlaces entre distintas comunidades.
 
