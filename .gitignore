@@ -152,4 +152,8 @@ debug.py
 rawdata/
 
 #bib
-*bib.sav
+*.bib.sav
+*.bib.bak
+
+#joss
+paper.pdf
