@@ -25,7 +25,7 @@ bibliography: paper.bib
 Social Networks, Facebook, Graphs, Coordinated behavior, CLSB, Python, Clustering, Community Detection
 
 # Resumen
-Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, actualmente solo en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCooRnet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por distintos grupos en la red social Facebook [@facebook] que comparten la misma ideología, esto con el objetivo de detectar este comportamiento.
+Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, actualmente solo en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCooRnet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por distintos grupos en la red social Facebook [@facebook], esto con el objetivo de detectar este comportamiento.
 
 # Motivaciones
 
@@ -44,7 +44,7 @@ El tiempo coordinación es el umbral de tiempo en segundos en el cual se define 
 
 
 # Detección De El Comportamiento Coordinado De Intercambio De Enlaces
-Como se visualiza en \autoref{fig:clsb_flow}, para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social, transformar los datos para extraer un tiempo de coordinación y usarlo como parámetro con el fin de detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Esto permite usar técnicas de ciencia de datos y visualización compleja de datos para analizar el resultado.
+Como se visualiza en \autoref{fig:clsb_flow}, para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social, transformar los datos para extraer un tiempo de coordinación y usarlo como parámetro con el fin de detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Esto permite usar ciencia de datos y visualización compleja de datos para analizar el resultado.
 
 ![Flujo de detección del comportamiento coordinado de intercambio de enlaces\label{fig:clsb_flow}](img/clsb-flow.png){width=80%}
 
@@ -60,7 +60,7 @@ Usando herramientas de visualización de grafos como gephi [@ICWSM09154] o Neo4j
 
 En \autoref{fig:telesur_graph} los nodos representan las páginas y grupos de facebook que tienen un comportamiento coordinado, los colores representan la comunidad al cual pertenece el nodo, y su tamaño la influencia de este grupo en el fenómeno analizado.
 
-# Modelamiento
+# Detección De Tiempo De Coordinación
 
 ## Metodología CooRnet
 
@@ -123,9 +123,9 @@ Se cambiaron los deltas de tiempo a una escala logarítmica con el fin de acerca
 
 Usando K-means, se realiza realiza una clusterización de los datos y entrar a analizar los centroides.
 
-Para escoger el valor K adecuado se usan el análisis de 
+Para escoger el valor K adecuado se usan el análisis de
 
-+ ***Suma de error al cuadrado (SSE)***  \autoref{fig:sse} entre los puntos de datos y los centroides de sus clusters asignados, Se elige el valor k en el lugar donde SSE comienza a aplanarse y forma un codo. 
++ ***Suma de error al cuadrado (SSE)***  \autoref{fig:sse} entre los puntos de datos y los centroides de sus clusters asignados, Se elige el valor k en el lugar donde SSE comienza a aplanarse y forma un codo.
 + ***Silueta  (distancia de separación entre los clusters)***. Nos indica como está separado cada punto de un cluster a los clusters vecinos) \autoref{fig:silhouette} . Esta métrica toma valores en el intervalo [-1, 1]. Se buscan los coeficientes más grandes posibles y cercanos a 1.
 
 ![SSE\label{fig:sse}](img/sse.png){width=70%}
@@ -182,9 +182,9 @@ Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
 ## Intervalo de coordinación y modelo de clasificación.
 
-El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo: 
+El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo:
 
-$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$  
+$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$
 
 Se analiza cada una de las ***n*** particiones para definir si un enlace es coordinado o no de acuerdo a la cantidad de veces que aparece el  enlace en estas, generando un posible problema de muestreo, además que en grandes sets de datos la complejidad del algorimo es :
 
@@ -248,8 +248,10 @@ El metodo de CooRnet al hacer divisiones fijas tiene un problema de muestro dond
 
 Es posible usar metodologías de aprendizaje de máquinas para crear un modelo no supervisado y encontrar un tiempo de coordinación para ser usado en un modelo que clasifique las URL y detecte un comportamiento coordinado de intercambio de enlaces. Este tiempo de coordinación es independiente del momento en que se compartió por primera vez el enlace y no es afectado por periodos de tiempo mayores a 7 días.
 
+La búsqueda diferencial de comportamiento coordinado de intercambio de enlaces elimina el problema de muestreo.
+
 Si se utiliza una herramienta de visualización el grafo resultante del modelo, usando una distribución Force Atlas generalmente los nodos que pertenecen a la misma comunidad están juntos, ademas si se  usa la fuerza como variable para el radio del nodo, los nodos mas grandes usualmente son los grupos y/o páginas que que comparten enlaces entre distintas comunidades.
 
-Los resultados de estos modelos pueden usarme pare etiquetar otros set de datos que para entrenar modelos que extraigan el texto de los enlaces y usar técnicas de Procesamiento de Lenguaje Natural (NLP) y tomar decisiones a partir de dicho contenido, por ejemplo si el texto es considerado positivo o no, si está favorenciendo una ideología política, regiosa, cultural, etc.
+Los resultados de estos modelos pueden usarse pare etiquetar otros set de datos que para entrenar modelos que extraigan el texto de los enlaces y usar técnicas de Procesamiento de Lenguaje Natural (NLP) y tomar decisiones a partir de dicho contenido, por ejemplo si el texto es considerado positivo o no, si está favorenciendo una ideología política, regiosa, cultural, etc.
 
 # References
