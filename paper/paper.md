@@ -21,32 +21,47 @@ date: 22 Mayo 2021
 bibliography: paper.bib
 ---
 
+# Resumen
+Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, actualmente solo en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Este artículo presenta una propuesta para la detección de publicaciones en redes sociales que manera ficticia y coordinada comparten una noticia con el fin de aprovecharse de los algortimos de las redes sociales para viralizarlas e influir en la opinión de los usuarios. Para ello, se han realizado ETL (Extracción, Transformación y Carga) de datos extraidos de la red social Facebook. Se han utilizado herramientas de inferencia estadística y  aprendizaje de máquinas para crear un modelo no supervisado y así obtener un tiempo de coordinación, el cuál es utilizado por otro modelo que entrega como resultados una clasificación binaria que indica si el enlace compartido tiene el comportamiento de estudio y un grafo que relaciona la interacción de los grupos o páginas de Facebook que fueron marcadas con este comportamiento.
+
 # Palabras Claves
+
 Social Networks, Facebook, Graphs, Coordinated behavior, CLSB, Python, Clustering, Community Detection
 
-# Resumen
-Gracias al uso masificado de las redes sociales y de su inmediatez, la difusión de noticias ha cobrado una relevancia importante, lo que antes tardaba una gran cantidad de tiempo en difundirse, actualmente solo en unos minutos puede volverse viral. Este tipo de comportamientos tienen una gran influencia en la opinión de las masas, ejemplos de esto son los resultados de votaciones populares como el plebiscito por la paz en Colombia del 2016, Las elecciones presidenciales de Estados Unidos de América o el referendo para que el Reino Unido abandonara la Unión Europa (Brexit). Usando PyCooRnet [@pycoornet], una herramienta que permita analizar datos en una red social para descubrir patrones de comportamiento coordinado para compartir enlaces con el fin de detectar intentos de volver viral una noticia, se pretende analizar enlaces compartidos por distintos grupos en la red social Facebook [@facebook], esto con el objetivo de detectar este comportamiento.
+# Introducción
 
-# Motivaciones
-
-En el artículo "Understanding Coordinated and Inauthentic Link Sharing Behavior on Facebook in the Run-up of 2018 General Election and 2019 European Election in Italy" [@Giglietto2019], usando ingeniería de características, los autores proponen hallar el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada link y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
+En un artículo apoyado por  "The Social Science Research Council" dentro la "Iniciativa de Datos Sociales" los autores Fabio Giglietto, Nicola Righetti y Giada Marino [@Giglietto2019], usando ingeniería de características, los autores proponen hallar el tiempo de coordinación calculando los deltas en tiempo entre que se compartió por primera vez cada enlace y el resto de estos, asignándole a estos deltas un quantil al que pertenencen para luego filtrar los datos a la muestra poblacional objetivo.
 
 Si bien, escogiendo correctamente el quantil y el tamaño de la muestra poblacional, este es un método que funciona para periodos de tiempo de estudio cortos (en el código lo limitan a 7 días). Esta metodología supone que el fenómeno de coordinación se genera inmediatamente se comparte por primera vez el enlace, de lo contrario, los tiempos de coordinación se vuelven demasiado grandes y son susceptibles a los datos atípicos.
 
 En el proyecto "Social Media Behaviour" de la Universidad Pontificia Bolivariana [@Bolivariana2021] tenemos como hipótesis que el tiempo de coordinación se puede dar en cualquier tiempo ***T*** independiente del primer momento en que se compartío un enlace, además que se puede repetir varias veces en la muestra poblacional.
 
-# Objetivos
+# Marco Conceptual
 
-Usar técnicas de aprendizaje de máquinas para encontar un tiempo de coordinación en una muestra poblacional data, para usarlo como parámetro en un modelo que permita la detección de comportamiento coordinado de intercambio de enlaces.
-
-# Tiempo De Coordinación
-El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, no es normal que se compartan en un tiempo inusualmente corto, lo cuál lo convierte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
+## Tiempo De Coordinación
+El tiempo coordinación es el umbral de tiempo en segundos en el cual se define que un enlace es compartido coordinadamente. Es normal que un mismo enlace sea compartido por diferentes entidades de una red social, pero no es atípico que se compartan en un tiempo inusualmente corto, lo cuál lo convierte en un sospechos de una viralización intencionada y posiblemente de un comportamiento coordinado para este fin [@Giglietto2020].
 
 
-# Detección De El Comportamiento Coordinado De Intercambio De Enlaces
+## Detección De El Comportamiento Coordinado De Intercambio De Enlaces
 Como se visualiza en \autoref{fig:clsb_flow}, para detectar el comportamiento coordinado de intercambio de enlaces se debe tener un set de datos con los  grupos, páginas y/o personas que compartieron el enlace en la red social, transformar los datos para extraer un tiempo de coordinación y usarlo como parámetro con el fin de detectar los enlaces y entidades de la red social que se comportan con este fenómeno. Esto permite usar ciencia de datos y visualización compleja de datos para analizar el resultado.
 
 ![Flujo de detección del comportamiento coordinado de intercambio de enlaces\label{fig:clsb_flow}](img/clsb-flow.png){width=80%}
+
+
+
+## Metodología CooRnet
+
+La metodología propuesta en Giglieto, Righetti y Marino [@Giglietto2020], calcula el intervalo de coordinación tomando para cada una de las URL (Localizador de Recursos Uniforme) [@BernersLee1994], la diferencia de tiempo entre esta y el momento que fue compartida por primera vez.
+
+$$\Delta_{i} = Fecha Enlace_{i} - Fecha Primer Enlace$$
+
+Se calculan rangos de las URL a partir de la fecha en que el enlace fue compartido  cada índice respectivo de una serie pasada. El rango se devuelve en función de la posición después de la clasificación [@Peltz2018].
+
+$$rank_{i} = rank(Fecha Enlace_{i})$$
+
+Tomando los parámetros  *Q* (cuantil de las URL más rápidas que se filtrarán),  *P* (el porcentaje del total de publicaciones que se analizarán) y los rangos previamente calculados, se encuentra la segunda vez que se compartió cada URL, y así encontrar cuál fué el tiempo inusual más rápido.
+
+Tomando este este valor se filtran las URLs (independientemente de quién realiza la publicación) para quedar con las URL que se compartieron dentro este umbral.
 
 # Caso De Estudio
 
@@ -182,21 +197,7 @@ Table: Tiempo de coordinación en segundos  \label{tbl:tiempoCoord}
 
 ## Intervalo de coordinación y modelo de clasificación.
 
-El modelo de detección de comportamiento coordinado propuestos por Giglieto, Righetti y Marino toma el tiempo de coordinación para generar ***n*** particiones de tiempo:
 
-$$n = {fecha Ultimo Elace - fecha Primer Enlace \over tiempo De Coordinación}$$
-
-Se analiza cada una de las ***n*** particiones para definir si un enlace es coordinado o no de acuerdo a la cantidad de veces que aparece el  enlace en estas, generando un posible problema de muestreo, además que en grandes sets de datos la complejidad del algorimo es :
-
- $$(q * v)^n$$
-
-***q*** es el número de enlaces, ***v*** las veces que fue compartido  y ***n*** el número de particiones.
-
-En el modelo propuesto por el proyecto agrupa cada enlace y calcula un delta entre ellos ordenados por fecha como variable para el modelo, lo cuál detecta el fenómeno de análisis independientemente del momento en que ocurre. La complejidad del algoritmo es:
-
-$$q * v$$
-
-***q*** es el número de enlaces, ***v*** las veces que fue compartido.
 
 Usando el modelo propuesto con los 2 sets de datos ***Enlaces A***; del resultado se toma un URL, se organiza temporalmente y se hace una gráfica de los momentos en que el modelo la clasificó como coordinada (valor 1) o no (valor 0), se observa que tanto el set de datos de 7 días (tiempo de coordinación de 20 segundos) o sin límite de tiempo (tiempo de coordinación de 14 segundos), existen tiempos de coordinación en distintas ventanas móviles de tiempo, y no necesariamente el fenómeno de coordinación se da inmediatamente después de que se comparte por primera vez.
 
