@@ -4,6 +4,10 @@ import networkx as nx
 from networkx.algorithms import bipartite
 import numpy as np
 import pandas as pd
+from scipy.stats import *
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+from sklearn.cluster import KMeans
 from tqdm import tqdm
 from .utils import Utils
 
@@ -43,7 +47,6 @@ class Shared:
 
         Returns:
             (tuple): 2-element tuple containing
-
                 - **summary** (pandas.DataFrame): summary statistics of q% quickest second share performing URLs.
                 - **coordination interval** (integer): time in seconds corresponding to the median time spent by these URLs to cumulate the % of their total shares.
         """
@@ -131,6 +134,11 @@ class Shared:
             logger.info(f'coordination interval from estimate_coord_interval: {coordination_interval}')
 
         return coord_interval
+
+    def __estimate_differential_coord_intervale(self, crowdtangle_shares_df, clean_urls=False, keep_ourl_only=False ):
+
+        logaritmos = np.log(crowdtangle_shares_df['diff'])
+        pass
 
     def __buid_graph(self, crowdtangle_shares_df, coordinated_shares_df, percentile_edge_weight = 90, timestamps = False):
         logger.info("Bulding graph")
@@ -257,9 +265,8 @@ class Shared:
 
         return highly_connected_graph, q
 
-
     def coord_shares(self, coordination_interval=None, percentile_edge_weight=90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
-        """Given a dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
+        """Using CooRnet method, Using the dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
         that performed coordinated link sharing behavior.
 
         Args:
@@ -285,7 +292,6 @@ class Shared:
                 - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
                 - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
                 - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
-                - **coordination_interval** (int): coordination time in seconds
         """
         # estimate the coordination interval if not specified by the users
         dataframe = self.__crowdtangle_shares_df.copy(deep=True)
@@ -360,7 +366,30 @@ class Shared:
 
         return crowdtangle_shares_df, highly_connected_graph, q
 
-    def coord_shares_differential(self, coordination_interval=None, percentile_edge_weight=90, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
+    def coord_shares_differential(self, coordination_interval=None, clean_urls=False, keep_ourl_only=False, gtimestamps=False):
+        """Using the differece between the shares, using the dataframe of CrowdTangle shares and a time threshold, this function detects networks of entities (pages, accounts and groups)
+        that performed coordinated link sharing behavior.
+
+        Args:
+            coordination_interval (int, optional): a threshold in seconds that defines a coordinated share.
+                Given a dataset of CrowdTangle shares, this threshold is automatically estimated. Alternatively
+                it can be manually passed to the function in seconds. Defaults to None.
+
+            clean_urls (bool, optional): clean the URLs from the tracking parameters. Defaults to False.
+
+            keep_ourl_only (bool, optional): restrict the analysis to ct shares links matching the original URLs.
+                Defaults to False.
+
+            gtimestamps (bool, optional): add timestamps of the fist and last coordinated shares on each node.
+                Slow on large networks. Defaults to False.
+
+        Returns:
+            (tuple): 3-element tuple containing
+
+                - **coordinated_df** (pandas.DataFrame): The input dataframe of shares with an additional boolean variable (coordinated) that identifies coordinated shares.
+                - **graph** (networkx.Graph): An graph (highly_connected_g) with networks of coordinated entities whose edges also contains a t_coord_share attribute (vector) reporting the timestamps of every time the edge was detected as coordinated sharing.
+                - **q** (networkx.Graph): Percentile edge weight number of leeped repetedly coordinated link sharing.
+        """
         dataframe = self.__crowdtangle_shares_df.copy(deep=True)
         if coordination_interval == None:
             coordination_interval = self.estimate_coord_interval(clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
@@ -387,6 +416,11 @@ class Shared:
         logger.debug("features")
         del urls_serie
         filtered_df.loc[:,'diff']=filtered_df.groupby('expanded')['date'].diff().dt.total_seconds().fillna(0)
+
+        if coordination_interval == None:
+            self.__estimate_differential_coord_intervale(filtered_df, clean_urls=clean_urls, keep_ourl_only=keep_ourl_only)
+
+
         filtered_df.loc[:,'valid_delta'] = filtered_df['diff']<= coordination_interval
         filtered_df.loc[:,'valid_before'] = filtered_df.groupby('expanded')['valid_delta'].shift(-1)
 

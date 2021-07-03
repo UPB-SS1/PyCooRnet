@@ -43,6 +43,8 @@ setup(
           'python-louvain>=0.14',
           'tldextract>=3.1.0',
           'pyarrow>=4.0.0',
-          'ratelimiter>= 1.2.0'
+          'ratelimiter>= 1.2.0',
+          'scipy>=1.6.3',
+          'scikit-learn>=0.24.2'
       ],
 )
